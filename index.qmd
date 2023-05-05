@@ -1,0 +1,231 @@
+---
+title: "Sunnwell's Sonnenland"
+subtitle: "Switzerland's solar radiation potential by land types"
+author: "Nils Ratnaweera"
+format:
+    html: 
+      code-fold: true
+      css: style.css
+    # pdf:
+    #     keep-tex: true
+    #     include-in-header: preamble.tex
+    #     documentclass: FrontiersinHarvard
+    #     classoption: utf8
+    #     include-before-body: before-body.tex
+    #     echo: false
+---
+
+
+# Introduction
+
+The Sunwell group utilized solar radiation modeling to estimate the potential solar energy (measured in Kilowatt hours per square meter) across Switzerland at a 25m resolution. The objective of this study is to determine the solar potential for different land use categories, including (1) agricultural areas, (2) standing water, and (3) areas adjacent to national roads. Each of these three categories is further divided into subcategories, which will be elaborated on below. 
+
+This report presents a detailed overview of the entire processing pipeline and showcases the findings. It is composed using [quarto](https://quarto.org), which integrates code into the document. However, the document was constructed using cached outputs rather than performing intensive computations.
+
+```{r}
+#| file: R/libraries-processing.R
+#| message: false
+#| code-summary: Libraries used for data processing
+```
+
+
+```{r}
+#| message: false
+#| code-summary: Libraries, functions and options used for this report
+library(tmap)
+library(units)
+library(stringr)
+options("sf_max.plot"=1)
+
+# experimental: dont print the "[" and "]" sorrounding the units
+units_options("group" = c("",""))
+
+print_with_units <- function(input, output_unit = NULL, digits = 2, big.mark = "'", sep = " ", scientific = FALSE, ...){
+  
+ 
+  
+  if(is.null(output_unit)){
+    output_unit <- units(input)
+  }
+  val <- set_units(input, output_unit,mode = "standard")
+  
+  if(!is.null(digits)){
+    val <- round(val, digits = digits)
+  }
+  
+  capture.output(print(val, digits = 1, scientific = scientific, big.mark = big.mark))
+
+  # paste(
+  #   formatC(as.numeric(val),digits = digits, format = format,big.mark = big.mark),
+  #   units::deparse_unit(val),
+  #   sep = sep)
+  
+}
+```
+
+
+```{r}
+#| file: R/functions.R
+#| message: false
+#| code-summary: Custom functions used for data processing
+```
+
+
+
+
+# Data description
+
+The data for this analysis was mostly gathered by the Sunwell group. The core of the analysis is the raster data mentioned above and described in more detail below. 
+[add more information]{.todo}
+
+@tbl-datasets is a listing of all the datasets used in this analysis. This data is provided by Sunwell and is described in more detail [here](https://sunwell-switzerland.notion.site/Collaboration-with-Nils-5fcb9e5334e3412d82a1caed6ed672c5).
+
+```{R}
+#| echo: false
+#| message: false
+#| tbl-cap: Datasets used as inputs for the analysis
+#| label: tbl-datasets
+
+read_csv("data/datasets-metadata.csv") |> 
+  knitr::kable()
+
+```
+
+
+```{r}
+#| echo: false
+
+summer_ch <- rast("data-intermediate/summer-ch.tif")
+units(summer_ch) <- "W*h/m^2"
+
+mybreaks <- seq(0,12,2)*100000
+
+mybreaks2 <- mybreaks/100000
+mylabels <- paste(head(mybreaks2,-1),tail(mybreaks2,-1), sep = "-")
+cols <- rev(RColorBrewer::brewer.pal(6, "Spectral"))
+
+
+plot(summer_ch, 
+     axes = FALSE, 
+     breaks = mybreaks,
+     # legend = FALSE,
+     col = RColorBrewer::brewer.pal(6, "Spectral"),
+     plg = list(legend = mylabels, title = "KW*h/m^2")
+     )
+
+```
+
+
+
+# Data preprocessing
+
+
+Before processing the datasets described in @tbl-datasets, some preprocessing steps were taken. These steps were done using the command line tools `gdal` and `ogr2ogr` and are documented below. 
+
+Preprocessing invoved the following steps:
+
+- Converting the shapefiles to Geopackage or Parquet format
+- Merging files together (e.g. Standing Water was split into 2 files, OST and WEST)
+- Reprojecting the data to the Swiss coordinate system (EPSG:2056)
+
+```{bash}
+#| file: data-preprocessing.sh
+#| eval: false
+#| code-summary: Data preprocessing (data-preprocessing.sh)
+```
+
+# Data Analysis
+
+```{r}
+#| file: R/data-processing.R
+#| code-summary: Data processing (data-processing.R)
+#| eval: false
+```
+
+
+```{r}
+#| code-summary: Load cached results from data-processing.R
+
+load("data-intermediate/schweiz.Rda")
+area_ch <- print_with_units(schweiz$area, "km^2",digits = 0)
+radiation_ch_frac <- schweiz$radiation_total*0.5*0.2
+radiation_total_str <- print_with_units(schweiz$radiation_total, "TW*h")
+radiation_ch_frac_str <- print_with_units(radiation_ch_frac, output_unit = "TW*h",digits = 0)
+```
+
+
+This passage presents an analysis of the solar energy potential in Switzerland during the summer season. The total radiation during this period across the entire country, which has an area of `r area_ch`, is estimated to be `r radiation_total_str` during the summer months. However, not all of this radiation can be harnessed by solar panels, as the type of panel used affects the amount of radiation that is captured. In this study, the fraction of radiation that falls onto a solar panel is assumed to be 0.5, or 50%, based on the global capture rate (GCR).
+
+Additionally, solar panels have an efficiency rate that determines how much of the captured radiation can be converted into usable energy. In this study, the efficiency rate is assumed to be 0.2, or 20%, meaning that only 20% of the solar radiation captured by the panel can be converted into electricity.
+
+Using these assumptions, the energy potential for a given area can be calculated using the following formula:
+
+$$E_{pot} = \text{Radiation} \times 0.5 \times 0.2$$
+
+Thus, for the entire country of Switzerland, the energy potential during the summer season is estimated to be `r radiation_ch_frac_str`.
+
+## Standing water
+
+
+```{r}
+#| code-summary: Load cached results from data-processing.R
+
+load("data-intermediate/stehende_gewaesser.Rda")
+
+
+stehende_gewaesser_summer_total <- sum(stehende_gewaesser$radiation_total, na.rm = TRUE)
+
+
+
+stehende_gewaesser_summer_frac <- stehende_gewaesser_summer_total*0.5*0.2
+
+stehende_gewaesser_summer_frac_str <- print_with_units(stehende_gewaesser_summer_frac, "TW*h")
+
+percent_pretty <- \(x, digits = 2, append = "%", sep = " ") paste(formatC(as.numeric(x),format = "f",digits = digits), append, sep = sep)
+
+gewaesser_percent <- percent_pretty(stehende_gewaesser_summer_frac/radiation_ch_frac*100)
+
+```
+
+
+The energy potential for standing water, which takes into account both the GCR and efficiency rate, is estimated to be `r stehende_gewaesser_summer_frac_str`. This potential represents approximately `r gewaesser_percent` of the overall solar potential in Switzerland.
+
+It is important to differentiate between two types of standing water: artificial bodies of water primarily utilized for power production and natural bodies of water. The former category has distinct characteristics that make it an attractive location for solar power generation.
+([be more specific here]{.todo})
+To categorize standing water, the dataset "Staumauer" (hearafter referred to as "dams") was used as a reference. All standing waters that intersect a dam are classified as artificial reservoirs. In contrast, all standing waters that do not intersect a dam are considered natural. 
+
+
+
+
+```{r}
+stehende_gewaesser_by_type <- stehende_gewaesser |> 
+  st_drop_geometry() |> 
+  group_by(Type = ifelse(is.na(staumauer),"Natural","Reservoir")) |> 
+  summarise(
+    radiation_total = set_units(sum(radiation_total, na.rm = TRUE), "GW*h"),
+  ) |> 
+  mutate(
+    Radiation_corrected = radiation_total*0.5*0.2,
+    Percentage_of_national = percent_pretty(Radiation_corrected/radiation_ch_frac*100)
+  )
+
+knitr::kable(stehende_gewaesser_by_type, col.names = str_replace_all(colnames(stehende_gewaesser_by_type), "_", " "))
+```
+
+
+## Agricultural
+
+```{bash}
+#| file: data-processing.sh
+#| eval: false
+#| code-summary: Data processing
+```
+
+
+### Agricultural areas and summering areas
+
+
+
+## Roads
+
+
