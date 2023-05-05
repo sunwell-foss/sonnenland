@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.340">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Nils Ratnaweera">
+
+<title>Sunnwell’s Sonnenland</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="index_files/libs/clipboard/clipboard.min.js"></script>
+<script src="index_files/libs/quarto-html/quarto.js"></script>
+<script src="index_files/libs/quarto-html/popper.min.js"></script>
+<script src="index_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="index_files/libs/quarto-html/anchor.min.js"></script>
+<link href="index_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="index_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="index_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="index_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="index_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Sunnwell’s Sonnenland</h1>
+<p class="subtitle lead">Switzerland’s solar radiation potential by land types</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Nils Ratnaweera </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>The Sunwell group utilized solar radiation modeling to estimate the potential solar energy (measured in Kilowatt hours per square meter) across Switzerland at a 25m resolution. The objective of this study is to determine the solar potential for different land use categories, including (1) agricultural areas, (2) standing water, and (3) areas adjacent to national roads. Each of these three categories is further divided into subcategories, which will be elaborated on below.</p>
+<p>This report presents a detailed overview of the entire processing pipeline and showcases the findings. It is composed using <a href="https://quarto.org">quarto</a>, which integrates code into the document. However, the document was constructed using cached outputs rather than performing intensive computations.</p>
+<div class="cell" data-file="R/libraries-processing.R">
+<details>
+<summary>Libraries used for data processing</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(terra)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(units)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sfarrow)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details>
+<summary>Libraries, functions and options used for this report</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tmap)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(units)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="st">"sf_max.plot"</span><span class="ot">=</span><span class="dv">1</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># experimental: dont print the "[" and "]" sorrounding the units</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">units_options</span>(<span class="st">"group"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">""</span>,<span class="st">""</span>))</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>print_with_units <span class="ot">&lt;-</span> <span class="cf">function</span>(input, <span class="at">output_unit =</span> <span class="cn">NULL</span>, <span class="at">digits =</span> <span class="dv">2</span>, <span class="at">big.mark =</span> <span class="st">"'"</span>, <span class="at">sep =</span> <span class="st">" "</span>, <span class="at">scientific =</span> <span class="cn">FALSE</span>, ...){</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(output_unit)){</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    output_unit <span class="ot">&lt;-</span> <span class="fu">units</span>(input)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  val <span class="ot">&lt;-</span> <span class="fu">set_units</span>(input, output_unit,<span class="at">mode =</span> <span class="st">"standard"</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(digits)){</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    val <span class="ot">&lt;-</span> <span class="fu">round</span>(val, <span class="at">digits =</span> digits)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">capture.output</span>(<span class="fu">print</span>(val, <span class="at">digits =</span> <span class="dv">1</span>, <span class="at">scientific =</span> scientific, <span class="at">big.mark =</span> big.mark))</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># paste(</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   formatC(as.numeric(val),digits = digits, format = format,big.mark = big.mark),</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   units::deparse_unit(val),</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   sep = sep)</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell" data-file="R/functions.R">
+<details>
+<summary>Custom functions used for data processing</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># extract values from a raster file, which has units</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>extract_with_units <span class="ot">&lt;-</span> <span class="cf">function</span>(rasterfile, vector, <span class="at">output_unit =</span> <span class="cn">NULL</span>, <span class="at">fun =</span> <span class="st">"mean"</span>){</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  input_unit <span class="ot">&lt;-</span> <span class="fu">units</span>(rasterfile)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(input_unit <span class="sc">!=</span> <span class="st">""</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(output_unit)){</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    output_unit <span class="ot">&lt;-</span> input_unit</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  vector_vect <span class="ot">&lt;-</span> <span class="fu">vect</span>(vector)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  extracted <span class="ot">&lt;-</span> terra<span class="sc">::</span><span class="fu">extract</span>(rasterfile,vector_vect,<span class="at">fun =</span> fun)[,<span class="dv">2</span>]</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  extracted <span class="sc">|&gt;</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    units<span class="sc">::</span><span class="fu">set_units</span>(input_unit,<span class="at">mode =</span> <span class="st">"standard"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">set_units</span>(output_unit,<span class="at">mode =</span> <span class="st">"standard"</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>global_with_units <span class="ot">&lt;-</span> <span class="cf">function</span>(raster, <span class="at">fun =</span> <span class="st">"mean"</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">output_unit =</span> <span class="cn">NULL</span>){</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  input_unit <span class="ot">&lt;-</span> <span class="fu">units</span>(raster)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(input_unit <span class="sc">!=</span> <span class="st">""</span>)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(output_unit)){</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    output_unit <span class="ot">&lt;-</span> input_unit</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  res <span class="ot">&lt;-</span> <span class="fu">global</span>(raster, fun, <span class="at">na.rm =</span> na.rm)</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  res <span class="ot">&lt;-</span> res[,<span class="dv">1</span>]</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">units</span>(res) <span class="ot">&lt;-</span> input_unit</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_units</span>(res, output_unit,<span class="at">mode =</span> <span class="st">"standard"</span>)</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="data-description" class="level1">
+<h1>Data description</h1>
+<p>The data for this analysis was mostly gathered by the Sunwell group. The core of the analysis is the raster data mentioned above and described in more detail below. <span class="todo">add more information</span></p>
+<p><a href="#tbl-datasets">Table&nbsp;1</a> is a listing of all the datasets used in this analysis. This data is provided by Sunwell and is described in more detail <a href="https://sunwell-switzerland.notion.site/Collaboration-with-Nils-5fcb9e5334e3412d82a1caed6ed672c5">here</a>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="tbl-datasets" class="anchored">
+<table class="table table-sm table-striped small">
+<caption>Table&nbsp;1: Datasets used as inputs for the analysis</caption>
+<colgroup>
+<col style="width: 21%">
+<col style="width: 22%">
+<col style="width: 24%">
+<col style="width: 31%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Dataset</th>
+<th style="text-align: left;">Provider</th>
+<th style="text-align: left;">Data Type</th>
+<th style="text-align: left;">Filename(s)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Winter Production (30 Degree tilt)</td>
+<td style="text-align: left;">Sunnwell</td>
+<td style="text-align: left;">Raster (Geotiff), 25m Resolution, W/m2</td>
+<td style="text-align: left;">tilt_30_winter.tif</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Summer Production (30 Degree tilt)</td>
+<td style="text-align: left;">Sunnwell</td>
+<td style="text-align: left;">Raster (Geotiff), 25m Resolution, W/m2</td>
+<td style="text-align: left;">tilt_30_summer.tif</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Standing Water</td>
+<td style="text-align: left;">swisstopo</td>
+<td style="text-align: left;">Polygon data (shapefile)</td>
+<td style="text-align: left;">OBJEKTART_Stehende Gewaesser.shp</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Dams</td>
+<td style="text-align: left;">swisstopo</td>
+<td style="text-align: left;">Polygon data (shapefile)</td>
+<td style="text-align: left;">OBJEKTART_Staumauer.shp</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Farm Land</td>
+<td style="text-align: left;">Cantons (provided via geodienste.ch)</td>
+<td style="text-align: left;">Polygon data (shapefile)</td>
+<td style="text-align: left;">perimeter_ln_sf.shp; lwb_perimeter_ln_sf_lv95.gpkg</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Roads</td>
+<td style="text-align: left;">swisstopo</td>
+<td style="text-align: left;">Line data (shapefile)</td>
+<td style="text-align: left;">swissTLM3D_TLM_STRASSE.shp</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="data-preprocessing" class="level1">
+<h1>Data preprocessing</h1>
+<p>Before processing the datasets described in <a href="#tbl-datasets">Table&nbsp;1</a>, some preprocessing steps were taken. These steps were done using the command line tools <code>gdal</code> and <code>ogr2ogr</code> and are documented below.</p>
+<p>Preprocessing invoved the following steps:</p>
+<ul>
+<li>Converting the shapefiles to Geopackage or Parquet format</li>
+<li>Merging files together (e.g.&nbsp;Standing Water was split into 2 files, OST and WEST)</li>
+<li>Reprojecting the data to the Swiss coordinate system (EPSG:2056)</li>
+</ul>
+<div class="cell" data-file="data-preprocessing.sh">
+<details>
+<summary>Data preprocessing (data-preprocessing.sh)</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reporject rasterdata to EPSG 2056</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="va">DIR</span><span class="op">=</span>data/Dataset_SONNENLAND/Radiation</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">gdalwarp</span> <span class="at">-t_srs</span> EPSG:2056 <span class="at">-tr</span> 25 25 <span class="at">-overwrite</span> <span class="va">$DIR</span>/tilt_30_summer.tif <span class="va">$DIR</span>/tilt_30_summer_2056.tif</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="ex">gdalwarp</span> <span class="at">-t_srs</span> EPSG:2056 <span class="at">-tr</span> 25 25 <span class="at">-overwrite</span> <span class="va">$DIR</span>/tilt_30_winter.tif <span class="va">$DIR</span>/tilt_30_winter_2056.tif</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Merge the two vector datasets into one single geopackage</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="va">DIR2</span><span class="op">=</span>data/Dataset_SONNENLAND/Classification/Standing_Water</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="ex">ogr2ogr</span> <span class="va">$DIR2</span>/stehende_gewaesser_merged.gpkg <span class="va">$DIR2</span>/<span class="st">"OST/OBJEKTART_Stehende Gewaesser.shp"</span> <span class="at">-nln</span> stehende_gewaesser</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="ex">ogr2ogr</span> <span class="va">$DIR2</span>/stehende_gewaesser_merged.gpkg <span class="va">$DIR2</span>/<span class="st">"WEST/OBJEKTART_Stehende Gewaesser.shp"</span> <span class="at">-nln</span> stehende_gewaesser <span class="at">-append</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="ex">ogr2ogr</span> <span class="va">$DIR2</span>/stehende_gewaesser_merged.parquet <span class="va">$DIR2</span>/stehende_gewaesser_merged.gpkg</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co"># convert swissboundaries into a geopackage</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="va">DIR3</span><span class="op">=</span>data/swissboundaries3d_2023-01_2056_5728.gdb</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="ex">ogr2ogr</span> <span class="va">$DIR3</span>/swissBOUNDARIES3D_1_4_LV95_LN02.gpkg <span class="dt">\</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="va">$DIR3</span>/swissBOUNDARIES3D_1_4_LV95_LN02.gdb</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="va">DIR4</span><span class="op">=</span>data/Dataset_SONNENLAND/Classification/Agricultural/Farming_most_cantons/shapefiles/lwb_perimeter_ln_sf</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="ex">ogr2ogr</span> <span class="va">$DIR4</span>/perimeter_ln_sf.parquet <span class="va">$DIR4</span>/perimeter_ln_sf.shp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="data-analysis" class="level1">
+<h1>Data Analysis</h1>
+<div class="cell" data-file="R/data-processing.R">
+<details>
+<summary>Data processing (data-processing.R)</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="do">## File paths ##################################################################</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>summer_path <span class="ot">&lt;-</span> <span class="st">"data/Dataset_SONNENLAND/Radiation/tilt_30_summer_2056.tif"</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>swissboundaries_path <span class="ot">&lt;-</span> <span class="st">"data/swissboundaries3d_2023-01_2056_5728.gdb/swissBOUNDARIES3D_1_4_LV95_LN02.gpkg"</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser_path <span class="ot">&lt;-</span> <span class="st">"data/Dataset_SONNENLAND/Classification/Standing_Water/stehende_gewaesser_merged.parquet"</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>staumauer_path <span class="ot">&lt;-</span> <span class="st">"data/Dataset_SONNENLAND/Classification/DAMS/OBJEKTART_Staumauer.shp"</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Landw. Bewirtschaftung: Perimeter LN- und Sömmerungsflächen</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>lwb_path <span class="ot">&lt;-</span> <span class="st">"data/Dataset_SONNENLAND/Classification/Agricultural/Farming_most_cantons/shapefiles/lwb_perimeter_ln_sf/perimeter_ln_sf.parquet"</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="do">## Switzerland's borders #######################################################</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>schweiz <span class="ot">&lt;-</span> <span class="fu">st_read</span>(swissboundaries_path, <span class="st">"TLM_LANDESGEBIET"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_zm</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(NAME <span class="sc">!=</span> <span class="st">"Liechtenstein"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_union</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>()</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="fu">st_geometry</span>(schweiz) <span class="ot">&lt;-</span> <span class="st">"geom"</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="fu">st_layers</span>(swissboundaries_path)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>cantons <span class="ot">&lt;-</span> <span class="fu">st_read</span>(swissboundaries_path, <span class="st">"TLM_KANTONSGEBIET"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_zm</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(NAME) <span class="sc">|&gt;</span> </span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>()</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>canton_names <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/cantons.csv"</span>) <span class="sc">|&gt;</span> <span class="fu">arrange</span>(canton_long)</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="co"># test</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="co"># anti_join(cantons, canton_names, by = c("NAME" = "canton_long"))</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>cantons <span class="ot">&lt;-</span> <span class="fu">left_join</span>(cantons, canton_names, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"NAME"</span> <span class="ot">=</span> <span class="st">"canton_long"</span>))</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="do">## Solar potential raster ######################################################</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>summer_rast <span class="ot">&lt;-</span> <span class="fu">rast</span>(summer_path)</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="co"># !time!</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>summer_ch <span class="ot">&lt;-</span> <span class="fu">crop</span>(summer_rast, <span class="fu">vect</span>(schweiz))</span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>summer_ch <span class="ot">&lt;-</span> <span class="fu">mask</span>(summer_ch, <span class="fu">vect</span>(schweiz),<span class="at">filename =</span> <span class="st">"data-intermediate/summer-ch.tif"</span>, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)  </span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a><span class="fu">units</span>(summer_ch) <span class="ot">&lt;-</span> <span class="st">"W*h/m^2"</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a><span class="co"># !time!</span></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>schweiz<span class="sc">$</span>radiation_mean <span class="ot">&lt;-</span> <span class="fu">global_with_units</span>(summer_ch)</span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>schweiz<span class="sc">$</span>area <span class="ot">&lt;-</span> <span class="fu">st_area</span>(schweiz)</span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>schweiz<span class="sc">$</span>radiation_total <span class="ot">&lt;-</span> schweiz<span class="sc">$</span>radiation_mean<span class="sc">*</span>schweiz<span class="sc">$</span>area</span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(schweiz, <span class="at">file =</span> <span class="st">"data-intermediate/schweiz.Rda"</span>)</span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a><span class="do">## Standing Water ##############################################################</span></span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser <span class="ot">&lt;-</span> sfarrow<span class="sc">::</span><span class="fu">st_read_parquet</span>(stehende_gewaesser_path) <span class="sc">|&gt;</span> </span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_zm</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_set_crs</span>(<span class="dv">2056</span>)</span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>staumauern <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">"data/Dataset_SONNENLAND/Classification/DAMS/OBJEKTART_Staumauer.shp"</span>)</span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a><span class="co"># I had initially thought that we would have select lakes within a distance to </span></span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a><span class="co"># "staumauern" and so introduce a bit of tolerance. It turns out however, that all</span></span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a><span class="co"># "staumauern" actually intersect the "stauseen" they are closest to, so the distance is</span></span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a><span class="co"># usually 0. They usually touch (but not always),  but they always intersect.</span></span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a><span class="co"># !time!</span></span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser <span class="ot">&lt;-</span> <span class="fu">st_join</span>(stehende_gewaesser, <span class="fu">transmute</span>(staumauern, <span class="at">staumauer =</span> <span class="fu">row_number</span>()))</span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a><span class="co"># !time!</span></span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser<span class="sc">$</span>radiation_mean <span class="ot">&lt;-</span> <span class="fu">extract_with_units</span>(summer_ch, stehende_gewaesser)</span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser<span class="sc">$</span>area <span class="ot">&lt;-</span> <span class="fu">st_area</span>(stehende_gewaesser)</span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser<span class="sc">$</span>radiation_total <span class="ot">&lt;-</span> stehende_gewaesser<span class="sc">$</span>radiation_mean <span class="sc">*</span> stehende_gewaesser<span class="sc">$</span>area</span>
+<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser <span class="ot">&lt;-</span> <span class="fu">select</span>(stehende_gewaesser, radiation_mean, area, radiation_total,staumauer)</span>
+<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(stehende_gewaesser, <span class="at">file =</span> <span class="st">"data-intermediate/stehende_gewaesser.Rda"</span>)</span>
+<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a><span class="do">## Agriculture #################################################################</span></span>
+<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a>lwb <span class="ot">&lt;-</span> sfarrow<span class="sc">::</span><span class="fu">st_read_parquet</span>(lwb_path)</span>
+<span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a><span class="fu">units</span>(lwb<span class="sc">$</span>flaeche_m2) <span class="ot">&lt;-</span> <span class="st">"m^2"</span></span>
+<span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a><span class="co"># !time!</span></span>
+<span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a>lwb_summer <span class="ot">&lt;-</span> <span class="fu">extract_with_units</span>(summer_ch, lwb)</span>
+<span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-95"><a href="#cb5-95" aria-hidden="true" tabindex="-1"></a>lwb[<span class="dv">2</span>,] <span class="sc">|&gt;</span> <span class="fu">st_area</span>()</span>
+<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-97"><a href="#cb5-97" aria-hidden="true" tabindex="-1"></a>lwb_available_cantons <span class="ot">&lt;-</span> <span class="fu">unique</span>(lwb<span class="sc">$</span>kanton)</span>
+<span id="cb5-98"><a href="#cb5-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-99"><a href="#cb5-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a>lwb_unavailable_cantons <span class="ot">&lt;-</span> cantons<span class="sc">$</span>canton_short[<span class="sc">!</span>(cantons<span class="sc">$</span>canton_short <span class="sc">%in%</span> lwb_available_cantons)]</span>
+<span id="cb5-102"><a href="#cb5-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-103"><a href="#cb5-103" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(lwb_unavailable_cantons, <span class="at">file =</span> <span class="st">"data-intermediate/lwb_unavailable_cantons.Rda"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details>
+<summary>Load cached results from data-processing.R</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"data-intermediate/schweiz.Rda"</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>area_ch <span class="ot">&lt;-</span> <span class="fu">print_with_units</span>(schweiz<span class="sc">$</span>area, <span class="st">"km^2"</span>,<span class="at">digits =</span> <span class="dv">0</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>radiation_ch_frac <span class="ot">&lt;-</span> schweiz<span class="sc">$</span>radiation_total<span class="sc">*</span><span class="fl">0.5</span><span class="sc">*</span><span class="fl">0.2</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>radiation_total_str <span class="ot">&lt;-</span> <span class="fu">print_with_units</span>(schweiz<span class="sc">$</span>radiation_total, <span class="st">"TW*h"</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>radiation_ch_frac_str <span class="ot">&lt;-</span> <span class="fu">print_with_units</span>(radiation_ch_frac, <span class="at">output_unit =</span> <span class="st">"TW*h"</span>,<span class="at">digits =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>This passage presents an analysis of the solar energy potential in Switzerland during the summer season. The total radiation during this period across the entire country, which has an area of 41’301 km^2, is estimated to be 27’448 h*TW during the summer months. However, not all of this radiation can be harnessed by solar panels, as the type of panel used affects the amount of radiation that is captured. In this study, the fraction of radiation that falls onto a solar panel is assumed to be 0.5, or 50%, based on the global capture rate (GCR).</p>
+<p>Additionally, solar panels have an efficiency rate that determines how much of the captured radiation can be converted into usable energy. In this study, the efficiency rate is assumed to be 0.2, or 20%, meaning that only 20% of the solar radiation captured by the panel can be converted into electricity.</p>
+<p>Using these assumptions, the energy potential for a given area can be calculated using the following formula:</p>
+<p><span class="math display">\[E_{pot} = \text{Radiation} \times 0.5 \times 0.2\]</span></p>
+<p>Thus, for the entire country of Switzerland, the energy potential during the summer season is estimated to be 2’745 h*TW.</p>
+<section id="standing-water" class="level2">
+<h2 class="anchored" data-anchor-id="standing-water">Standing water</h2>
+<div class="cell">
+<details>
+<summary>Load cached results from data-processing.R</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"data-intermediate/stehende_gewaesser.Rda"</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser_summer_total <span class="ot">&lt;-</span> <span class="fu">sum</span>(stehende_gewaesser<span class="sc">$</span>radiation_total, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser_summer_frac <span class="ot">&lt;-</span> stehende_gewaesser_summer_total<span class="sc">*</span><span class="fl">0.5</span><span class="sc">*</span><span class="fl">0.2</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser_summer_frac_str <span class="ot">&lt;-</span> <span class="fu">print_with_units</span>(stehende_gewaesser_summer_frac, <span class="st">"TW*h"</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>percent_pretty <span class="ot">&lt;-</span> \(x, <span class="at">digits =</span> <span class="dv">2</span>, <span class="at">append =</span> <span class="st">"%"</span>, <span class="at">sep =</span> <span class="st">" "</span>) <span class="fu">paste</span>(<span class="fu">formatC</span>(<span class="fu">as.numeric</span>(x),<span class="at">format =</span> <span class="st">"f"</span>,<span class="at">digits =</span> digits), append, <span class="at">sep =</span> sep)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>gewaesser_percent <span class="ot">&lt;-</span> <span class="fu">percent_pretty</span>(stehende_gewaesser_summer_frac<span class="sc">/</span>radiation_ch_frac<span class="sc">*</span><span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The energy potential for standing water, which takes into account both the GCR and efficiency rate, is estimated to be 55 h*TW. This potential represents approximately 1.99 % of the overall solar potential in Switzerland.</p>
+<p>It is important to differentiate between two types of standing water: artificial bodies of water primarily utilized for power production and natural bodies of water. The former category has distinct characteristics that make it an attractive location for solar power generation. (<span class="todo">be more specific here</span>) To categorize standing water, the dataset “Staumauer” (hearafter referred to as “dams”) was used as a reference. All standing waters that intersect a dam are classified as artificial reservoirs. In contrast, all standing waters that do not intersect a dam are considered natural.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser_by_type <span class="ot">&lt;-</span> stehende_gewaesser <span class="sc">|&gt;</span> </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(<span class="at">Type =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(staumauer),<span class="st">"Natural"</span>,<span class="st">"Reservoir"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">radiation_total =</span> <span class="fu">set_units</span>(<span class="fu">sum</span>(radiation_total, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="st">"GW*h"</span>),</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">Radiation_corrected =</span> radiation_total<span class="sc">*</span><span class="fl">0.5</span><span class="sc">*</span><span class="fl">0.2</span>,</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">Percentage_of_national =</span> <span class="fu">percent_pretty</span>(Radiation_corrected<span class="sc">/</span>radiation_ch_frac<span class="sc">*</span><span class="dv">100</span>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(stehende_gewaesser_by_type, <span class="at">col.names =</span> <span class="fu">str_replace_all</span>(<span class="fu">colnames</span>(stehende_gewaesser_by_type), <span class="st">"_"</span>, <span class="st">" "</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 23%">
+<col style="width: 28%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Type</th>
+<th style="text-align: right;">radiation total</th>
+<th style="text-align: right;">Radiation corrected</th>
+<th style="text-align: left;">Percentage of national</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Natural</td>
+<td style="text-align: right;">488923.38 GW*h</td>
+<td style="text-align: right;">48892.338 GW*h</td>
+<td style="text-align: left;">1.78 %</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Reservoir</td>
+<td style="text-align: right;">57024.67 GW*h</td>
+<td style="text-align: right;">5702.467 GW*h</td>
+<td style="text-align: left;">0.21 %</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="agricultural" class="level2">
+<h2 class="anchored" data-anchor-id="agricultural">Agricultural</h2>
+<div class="cell" data-file="data-processing.sh">
+<details>
+<summary>Data processing</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculated outside R for speed</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># This process takes approx 1 - 2h</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># The code was not run as it's written here, I've cleaned it up a little</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="va">rasterdir</span><span class="op">=</span>data/Dataset_SONNENLAND/Radiation</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="va">lwbdir</span><span class="op">=</span>data/Dataset_SONNENLAND/Classification/Agricultural/Farming_most_cantons/shapefiles/lwb_perimeter_ln_sf</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="va">intermediatedir</span><span class="op">=</span>data-intermediate</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="ex">pkextractogr</span> <span class="at">-i</span> <span class="va">$rasterdir</span>/tilt_30_summer_2056.tif <span class="at">-s</span> <span class="va">$lwbdir</span>/perimeter_ln_sf.shp <span class="at">-r</span> mean <span class="at">-f</span> CSV <span class="at">-o</span> <span class="va">$intermediatedir</span>/lwb_summer_mean.csv</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co"># The above computation caused many warnings (maxed out at 1'000):</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co"># TopologyException: side location conflict at 2634055.9960000003 1201497.003. This can occur if the input geometry is invalid.</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="co"># More than 1000 errors or warnings have been reported. No more will be reported from now.</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="co"># it might be wise to transform to geopackage and makevalid?</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="agricultural-areas-and-summering-areas" class="level3">
+<h3 class="anchored" data-anchor-id="agricultural-areas-and-summering-areas">Agricultural areas and summering areas</h3>
+</section>
+</section>
+<section id="roads" class="level2">
+<h2 class="anchored" data-anchor-id="roads">Roads</h2>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
