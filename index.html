@@ -126,65 +126,82 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tmap)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(units)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="st">"sf_max.plot"</span><span class="ot">=</span><span class="dv">1</span>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># experimental: dont print the "[" and "]" sorrounding the units</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">units_options</span>(<span class="st">"group"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">""</span>,<span class="st">""</span>))</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>print_with_units <span class="ot">&lt;-</span> <span class="cf">function</span>(input, <span class="at">output_unit =</span> <span class="cn">NULL</span>, <span class="at">digits =</span> <span class="dv">2</span>, <span class="at">big.mark =</span> <span class="st">"'"</span>, <span class="at">sep =</span> <span class="st">" "</span>, <span class="at">scientific =</span> <span class="cn">FALSE</span>, ...){</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(output_unit)){</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    output_unit <span class="ot">&lt;-</span> <span class="fu">units</span>(input)</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  val <span class="ot">&lt;-</span> <span class="fu">set_units</span>(input, output_unit,<span class="at">mode =</span> <span class="st">"standard"</span>)</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(digits)){</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    val <span class="ot">&lt;-</span> <span class="fu">round</span>(val, <span class="at">digits =</span> digits)</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">capture.output</span>(<span class="fu">print</span>(val, <span class="at">digits =</span> <span class="dv">1</span>, <span class="at">scientific =</span> scientific, <span class="at">big.mark =</span> big.mark))</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># paste(</span></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   formatC(as.numeric(val),digits = digits, format = format,big.mark = big.mark),</span></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   units::deparse_unit(val),</span></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   sep = sep)</span></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(forcats)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="st">"sf_max.plot"</span><span class="ot">=</span><span class="dv">1</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># experimental: dont print the "[" and "]" sorrounding the units</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="fu">units_options</span>(<span class="st">"group"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">""</span>,<span class="st">""</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>print_with_units <span class="ot">&lt;-</span> <span class="cf">function</span>(input, <span class="at">output_unit =</span> <span class="cn">NULL</span>, <span class="at">digits =</span> <span class="dv">2</span>, <span class="at">big.mark =</span> <span class="st">"'"</span>, <span class="at">sep =</span> <span class="st">" "</span>, <span class="at">scientific =</span> <span class="cn">FALSE</span>, ...){</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(output_unit)){</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    output_unit <span class="ot">&lt;-</span> <span class="fu">units</span>(input)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  val <span class="ot">&lt;-</span> <span class="fu">set_units</span>(input, output_unit,<span class="at">mode =</span> <span class="st">"standard"</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(digits)){</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    val <span class="ot">&lt;-</span> <span class="fu">round</span>(val, <span class="at">digits =</span> digits)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">capture.output</span>(<span class="fu">print</span>(val, <span class="at">digits =</span> <span class="dv">1</span>, <span class="at">scientific =</span> scientific, <span class="at">big.mark =</span> big.mark))</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># paste(</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   formatC(as.numeric(val),digits = digits, format = format,big.mark = big.mark),</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   units::deparse_unit(val),</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   sep = sep)</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>mykable <span class="ot">&lt;-</span> <span class="cf">function</span>(df, <span class="at">linesep =</span> <span class="st">"&lt;br&gt;"</span>){</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  colnames_old <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span> </span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colnames</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_replace_all</span>(<span class="st">"_"</span>, <span class="st">" "</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_to_title</span>()</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  col_units <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map</span>(df, \(y) <span class="fu">tryCatch</span>(<span class="fu">as.character</span>(<span class="fu">units</span>(y)),<span class="at">error =</span> \(x)<span class="st">""</span>))</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  colnames_new <span class="ot">&lt;-</span> <span class="fu">paste0</span>(colnames_old, linesep, col_units)</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  df <span class="sc">|&gt;</span> </span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">drop_units</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    kableExtra<span class="sc">::</span><span class="fu">kable</span>(<span class="at">col.names =</span> colnames_new, <span class="at">escape =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div class="cell" data-file="R/functions.R">
 <details>
 <summary>Custom functions used for data processing</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># extract values from a raster file, which has units</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>extract_with_units <span class="ot">&lt;-</span> <span class="cf">function</span>(rasterfile, vector, <span class="at">output_unit =</span> <span class="cn">NULL</span>, <span class="at">fun =</span> <span class="st">"mean"</span>){</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  input_unit <span class="ot">&lt;-</span> <span class="fu">units</span>(rasterfile)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(input_unit <span class="sc">!=</span> <span class="st">""</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(output_unit)){</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    output_unit <span class="ot">&lt;-</span> input_unit</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  vector_vect <span class="ot">&lt;-</span> <span class="fu">vect</span>(vector)</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  extracted <span class="ot">&lt;-</span> terra<span class="sc">::</span><span class="fu">extract</span>(rasterfile,vector_vect,<span class="at">fun =</span> fun)[,<span class="dv">2</span>]</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  extracted <span class="sc">|&gt;</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    units<span class="sc">::</span><span class="fu">set_units</span>(input_unit,<span class="at">mode =</span> <span class="st">"standard"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">set_units</span>(output_unit,<span class="at">mode =</span> <span class="st">"standard"</span>)</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>global_with_units <span class="ot">&lt;-</span> <span class="cf">function</span>(raster, <span class="at">fun =</span> <span class="st">"mean"</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">output_unit =</span> <span class="cn">NULL</span>){</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  input_unit <span class="ot">&lt;-</span> <span class="fu">units</span>(raster)</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(input_unit <span class="sc">!=</span> <span class="st">""</span>)</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(output_unit)){</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    output_unit <span class="ot">&lt;-</span> input_unit</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  res <span class="ot">&lt;-</span> <span class="fu">global</span>(raster, fun, <span class="at">na.rm =</span> na.rm)</span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  res <span class="ot">&lt;-</span> res[,<span class="dv">1</span>]</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">units</span>(res) <span class="ot">&lt;-</span> input_unit</span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_units</span>(res, output_unit,<span class="at">mode =</span> <span class="st">"standard"</span>)</span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># extract values from a raster file, which has units</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>extract_with_units <span class="ot">&lt;-</span> <span class="cf">function</span>(rasterfile, vector, <span class="at">output_unit =</span> <span class="cn">NULL</span>, <span class="at">fun =</span> <span class="st">"mean"</span>){</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  input_unit <span class="ot">&lt;-</span> <span class="fu">units</span>(rasterfile)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(input_unit <span class="sc">!=</span> <span class="st">""</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(output_unit)){</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    output_unit <span class="ot">&lt;-</span> input_unit</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  vector_vect <span class="ot">&lt;-</span> <span class="fu">vect</span>(vector)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  extracted <span class="ot">&lt;-</span> terra<span class="sc">::</span><span class="fu">extract</span>(rasterfile,vector_vect,<span class="at">fun =</span> fun)[,<span class="dv">2</span>]</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  extracted <span class="sc">|&gt;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    units<span class="sc">::</span><span class="fu">set_units</span>(input_unit,<span class="at">mode =</span> <span class="st">"standard"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">set_units</span>(output_unit,<span class="at">mode =</span> <span class="st">"standard"</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>global_with_units <span class="ot">&lt;-</span> <span class="cf">function</span>(raster, <span class="at">fun =</span> <span class="st">"mean"</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">output_unit =</span> <span class="cn">NULL</span>){</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  input_unit <span class="ot">&lt;-</span> <span class="fu">units</span>(raster)</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(input_unit <span class="sc">!=</span> <span class="st">""</span>)</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(output_unit)){</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    output_unit <span class="ot">&lt;-</span> input_unit</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  res <span class="ot">&lt;-</span> <span class="fu">global</span>(raster, fun, <span class="at">na.rm =</span> na.rm)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  res <span class="ot">&lt;-</span> res[,<span class="dv">1</span>]</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">units</span>(res) <span class="ot">&lt;-</span> input_unit</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_units</span>(res, output_unit,<span class="at">mode =</span> <span class="st">"standard"</span>)</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
@@ -255,7 +272,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
@@ -271,25 +288,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell" data-file="data-preprocessing.sh">
 <details>
 <summary>Data preprocessing (data-preprocessing.sh)</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reporject rasterdata to EPSG 2056</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="va">DIR</span><span class="op">=</span>data/Dataset_SONNENLAND/Radiation</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">gdalwarp</span> <span class="at">-t_srs</span> EPSG:2056 <span class="at">-tr</span> 25 25 <span class="at">-overwrite</span> <span class="va">$DIR</span>/tilt_30_summer.tif <span class="va">$DIR</span>/tilt_30_summer_2056.tif</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="ex">gdalwarp</span> <span class="at">-t_srs</span> EPSG:2056 <span class="at">-tr</span> 25 25 <span class="at">-overwrite</span> <span class="va">$DIR</span>/tilt_30_winter.tif <span class="va">$DIR</span>/tilt_30_winter_2056.tif</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Merge the two vector datasets into one single geopackage</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="va">DIR2</span><span class="op">=</span>data/Dataset_SONNENLAND/Classification/Standing_Water</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="ex">ogr2ogr</span> <span class="va">$DIR2</span>/stehende_gewaesser_merged.gpkg <span class="va">$DIR2</span>/<span class="st">"OST/OBJEKTART_Stehende Gewaesser.shp"</span> <span class="at">-nln</span> stehende_gewaesser</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="ex">ogr2ogr</span> <span class="va">$DIR2</span>/stehende_gewaesser_merged.gpkg <span class="va">$DIR2</span>/<span class="st">"WEST/OBJEKTART_Stehende Gewaesser.shp"</span> <span class="at">-nln</span> stehende_gewaesser <span class="at">-append</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="ex">ogr2ogr</span> <span class="va">$DIR2</span>/stehende_gewaesser_merged.parquet <span class="va">$DIR2</span>/stehende_gewaesser_merged.gpkg</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co"># convert swissboundaries into a geopackage</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="va">DIR3</span><span class="op">=</span>data/swissboundaries3d_2023-01_2056_5728.gdb</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="ex">ogr2ogr</span> <span class="va">$DIR3</span>/swissBOUNDARIES3D_1_4_LV95_LN02.gpkg <span class="dt">\</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="va">$DIR3</span>/swissBOUNDARIES3D_1_4_LV95_LN02.gdb</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="va">DIR4</span><span class="op">=</span>data/Dataset_SONNENLAND/Classification/Agricultural/Farming_most_cantons/shapefiles/lwb_perimeter_ln_sf</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="ex">ogr2ogr</span> <span class="va">$DIR4</span>/perimeter_ln_sf.parquet <span class="va">$DIR4</span>/perimeter_ln_sf.shp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reporject rasterdata to EPSG 2056</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="va">DIR</span><span class="op">=</span>data/Dataset_SONNENLAND/Radiation</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">gdalwarp</span> <span class="at">-t_srs</span> EPSG:2056 <span class="at">-tr</span> 25 25 <span class="at">-overwrite</span> <span class="va">$DIR</span>/tilt_30_summer.tif <span class="va">$DIR</span>/tilt_30_summer_2056.tif</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="ex">gdalwarp</span> <span class="at">-t_srs</span> EPSG:2056 <span class="at">-tr</span> 25 25 <span class="at">-overwrite</span> <span class="va">$DIR</span>/tilt_30_winter.tif <span class="va">$DIR</span>/tilt_30_winter_2056.tif</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Merge the two vector datasets into one single geopackage</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="va">DIR2</span><span class="op">=</span>data/Dataset_SONNENLAND/Classification/Standing_Water</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="ex">ogr2ogr</span> <span class="va">$DIR2</span>/stehende_gewaesser_merged.gpkg <span class="va">$DIR2</span>/<span class="st">"OST/OBJEKTART_Stehende Gewaesser.shp"</span> <span class="at">-nln</span> stehende_gewaesser</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="ex">ogr2ogr</span> <span class="va">$DIR2</span>/stehende_gewaesser_merged.gpkg <span class="va">$DIR2</span>/<span class="st">"WEST/OBJEKTART_Stehende Gewaesser.shp"</span> <span class="at">-nln</span> stehende_gewaesser <span class="at">-append</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="ex">ogr2ogr</span> <span class="va">$DIR2</span>/stehende_gewaesser_merged.parquet <span class="va">$DIR2</span>/stehende_gewaesser_merged.gpkg</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co"># convert swissboundaries into a geopackage</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="va">DIR3</span><span class="op">=</span>data/swissboundaries3d_2023-01_2056_5728.gdb</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="ex">ogr2ogr</span> data/swissBOUNDARIES3D_1_4_LV95_LN02.gpkg <span class="dt">\</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="va">$DIR3</span>/swissBOUNDARIES3D_1_4_LV95_LN02.gdb</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co"># DIR4=data/Dataset_SONNENLAND/Classification/Agricultural/Farming_most_cantons/shapefiles/lwb_perimeter_ln_sf</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co"># ogr2ogr $DIR4/perimeter_ln_sf.parquet $DIR4/perimeter_ln_sf.shp</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co"># DIR5=data/Dataset_SONNENLAND/Classification/Agricultural/farming_ar_nw_ow_vd/geopackage</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co"># ogr2ogr $DIR5/lwb_perimeter_ln_sf_lv95.parquet $DIR5/lwb_perimeter_ln_sf_lv95.gpkg</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="va">dir_roads</span><span class="op">=</span>data/Dataset_SONNENLAND/Classification/ROADS</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="ex">ogr2ogr</span> <span class="va">$dir_roads</span>/swissTLM3D_TLM_STRASSE.parquet <span class="va">$dir_roads</span>/swissTLM3D_TLM_STRASSE.shp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
@@ -298,119 +321,104 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell" data-file="R/data-processing.R">
 <details>
 <summary>Data processing (data-processing.R)</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="do">## File paths ##################################################################</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>summer_path <span class="ot">&lt;-</span> <span class="st">"data/Dataset_SONNENLAND/Radiation/tilt_30_summer_2056.tif"</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>swissboundaries_path <span class="ot">&lt;-</span> <span class="st">"data/swissboundaries3d_2023-01_2056_5728.gdb/swissBOUNDARIES3D_1_4_LV95_LN02.gpkg"</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser_path <span class="ot">&lt;-</span> <span class="st">"data/Dataset_SONNENLAND/Classification/Standing_Water/stehende_gewaesser_merged.parquet"</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>staumauer_path <span class="ot">&lt;-</span> <span class="st">"data/Dataset_SONNENLAND/Classification/DAMS/OBJEKTART_Staumauer.shp"</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Landw. Bewirtschaftung: Perimeter LN- und Sömmerungsflächen</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>lwb_path <span class="ot">&lt;-</span> <span class="st">"data/Dataset_SONNENLAND/Classification/Agricultural/Farming_most_cantons/shapefiles/lwb_perimeter_ln_sf/perimeter_ln_sf.parquet"</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="do">## Switzerland's borders #######################################################</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>schweiz <span class="ot">&lt;-</span> <span class="fu">st_read</span>(swissboundaries_path, <span class="st">"TLM_LANDESGEBIET"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_zm</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(NAME <span class="sc">!=</span> <span class="st">"Liechtenstein"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_union</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>()</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="fu">st_geometry</span>(schweiz) <span class="ot">&lt;-</span> <span class="st">"geom"</span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="fu">st_layers</span>(swissboundaries_path)</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>cantons <span class="ot">&lt;-</span> <span class="fu">st_read</span>(swissboundaries_path, <span class="st">"TLM_KANTONSGEBIET"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_zm</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(NAME) <span class="sc">|&gt;</span> </span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>()</span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>canton_names <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/cantons.csv"</span>) <span class="sc">|&gt;</span> <span class="fu">arrange</span>(canton_long)</span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="co"># test</span></span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="co"># anti_join(cantons, canton_names, by = c("NAME" = "canton_long"))</span></span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>cantons <span class="ot">&lt;-</span> <span class="fu">left_join</span>(cantons, canton_names, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"NAME"</span> <span class="ot">=</span> <span class="st">"canton_long"</span>))</span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="do">## Solar potential raster ######################################################</span></span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>summer_rast <span class="ot">&lt;-</span> <span class="fu">rast</span>(summer_path)</span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="co"># !time!</span></span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>summer_ch <span class="ot">&lt;-</span> <span class="fu">crop</span>(summer_rast, <span class="fu">vect</span>(schweiz))</span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>summer_ch <span class="ot">&lt;-</span> <span class="fu">mask</span>(summer_ch, <span class="fu">vect</span>(schweiz),<span class="at">filename =</span> <span class="st">"data-intermediate/summer-ch.tif"</span>, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)  </span>
-<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a><span class="fu">units</span>(summer_ch) <span class="ot">&lt;-</span> <span class="st">"W*h/m^2"</span></span>
-<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a><span class="co"># !time!</span></span>
-<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>schweiz<span class="sc">$</span>radiation_mean <span class="ot">&lt;-</span> <span class="fu">global_with_units</span>(summer_ch)</span>
-<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>schweiz<span class="sc">$</span>area <span class="ot">&lt;-</span> <span class="fu">st_area</span>(schweiz)</span>
-<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>schweiz<span class="sc">$</span>radiation_total <span class="ot">&lt;-</span> schweiz<span class="sc">$</span>radiation_mean<span class="sc">*</span>schweiz<span class="sc">$</span>area</span>
-<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(schweiz, <span class="at">file =</span> <span class="st">"data-intermediate/schweiz.Rda"</span>)</span>
-<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a><span class="do">## Standing Water ##############################################################</span></span>
-<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser <span class="ot">&lt;-</span> sfarrow<span class="sc">::</span><span class="fu">st_read_parquet</span>(stehende_gewaesser_path) <span class="sc">|&gt;</span> </span>
-<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_zm</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_set_crs</span>(<span class="dv">2056</span>)</span>
-<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>staumauern <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">"data/Dataset_SONNENLAND/Classification/DAMS/OBJEKTART_Staumauer.shp"</span>)</span>
-<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a><span class="co"># I had initially thought that we would have select lakes within a distance to </span></span>
-<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a><span class="co"># "staumauern" and so introduce a bit of tolerance. It turns out however, that all</span></span>
-<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a><span class="co"># "staumauern" actually intersect the "stauseen" they are closest to, so the distance is</span></span>
-<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a><span class="co"># usually 0. They usually touch (but not always),  but they always intersect.</span></span>
-<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a><span class="co"># !time!</span></span>
-<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser <span class="ot">&lt;-</span> <span class="fu">st_join</span>(stehende_gewaesser, <span class="fu">transmute</span>(staumauern, <span class="at">staumauer =</span> <span class="fu">row_number</span>()))</span>
-<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a><span class="co"># !time!</span></span>
-<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser<span class="sc">$</span>radiation_mean <span class="ot">&lt;-</span> <span class="fu">extract_with_units</span>(summer_ch, stehende_gewaesser)</span>
-<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser<span class="sc">$</span>area <span class="ot">&lt;-</span> <span class="fu">st_area</span>(stehende_gewaesser)</span>
-<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser<span class="sc">$</span>radiation_total <span class="ot">&lt;-</span> stehende_gewaesser<span class="sc">$</span>radiation_mean <span class="sc">*</span> stehende_gewaesser<span class="sc">$</span>area</span>
-<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser <span class="ot">&lt;-</span> <span class="fu">select</span>(stehende_gewaesser, radiation_mean, area, radiation_total,staumauer)</span>
-<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(stehende_gewaesser, <span class="at">file =</span> <span class="st">"data-intermediate/stehende_gewaesser.Rda"</span>)</span>
-<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a><span class="do">## Agriculture #################################################################</span></span>
-<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a>lwb <span class="ot">&lt;-</span> sfarrow<span class="sc">::</span><span class="fu">st_read_parquet</span>(lwb_path)</span>
-<span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a><span class="fu">units</span>(lwb<span class="sc">$</span>flaeche_m2) <span class="ot">&lt;-</span> <span class="st">"m^2"</span></span>
-<span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a><span class="co"># !time!</span></span>
-<span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a>lwb_summer <span class="ot">&lt;-</span> <span class="fu">extract_with_units</span>(summer_ch, lwb)</span>
-<span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-95"><a href="#cb5-95" aria-hidden="true" tabindex="-1"></a>lwb[<span class="dv">2</span>,] <span class="sc">|&gt;</span> <span class="fu">st_area</span>()</span>
-<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-97"><a href="#cb5-97" aria-hidden="true" tabindex="-1"></a>lwb_available_cantons <span class="ot">&lt;-</span> <span class="fu">unique</span>(lwb<span class="sc">$</span>kanton)</span>
-<span id="cb5-98"><a href="#cb5-98" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-99"><a href="#cb5-99" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a>lwb_unavailable_cantons <span class="ot">&lt;-</span> cantons<span class="sc">$</span>canton_short[<span class="sc">!</span>(cantons<span class="sc">$</span>canton_short <span class="sc">%in%</span> lwb_available_cantons)]</span>
-<span id="cb5-102"><a href="#cb5-102" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-103"><a href="#cb5-103" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(lwb_unavailable_cantons, <span class="at">file =</span> <span class="st">"data-intermediate/lwb_unavailable_cantons.Rda"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="do">## File paths ##################################################################</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>summer_path <span class="ot">&lt;-</span> <span class="st">"data/Dataset_SONNENLAND/Radiation/tilt_30_summer_2056.tif"</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>swissboundaries_path <span class="ot">&lt;-</span> <span class="st">"data/swissboundaries3d_2023-01_2056_5728.gdb/swissBOUNDARIES3D_1_4_LV95_LN02.gpkg"</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser_path <span class="ot">&lt;-</span> <span class="st">"data/Dataset_SONNENLAND/Classification/Standing_Water/stehende_gewaesser_merged.parquet"</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>staumauer_path <span class="ot">&lt;-</span> <span class="st">"data/Dataset_SONNENLAND/Classification/DAMS/OBJEKTART_Staumauer.shp"</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>roads_path <span class="ot">&lt;-</span> <span class="st">"data/Dataset_SONNENLAND/Classification/ROADS/swissTLM3D_TLM_STRASSE.parquet"</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="do">## Switzerland's borders #######################################################</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>schweiz <span class="ot">&lt;-</span> <span class="fu">st_read</span>(swissboundaries_path, <span class="st">"TLM_LANDESGEBIET"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_zm</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(NAME <span class="sc">!=</span> <span class="st">"Liechtenstein"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_union</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>()</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="fu">st_geometry</span>(schweiz) <span class="ot">&lt;-</span> <span class="st">"geom"</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="fu">st_layers</span>(swissboundaries_path)</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>cantons <span class="ot">&lt;-</span> <span class="fu">st_read</span>(swissboundaries_path, <span class="st">"TLM_KANTONSGEBIET"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_zm</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(NAME) <span class="sc">|&gt;</span> </span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>()</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>canton_names <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/cantons.csv"</span>) <span class="sc">|&gt;</span> <span class="fu">arrange</span>(canton_long)</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="co"># test</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="co"># anti_join(cantons, canton_names, by = c("NAME" = "canton_long"))</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>cantons <span class="ot">&lt;-</span> <span class="fu">left_join</span>(cantons, canton_names, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"NAME"</span> <span class="ot">=</span> <span class="st">"canton_long"</span>))</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a><span class="do">## Solar potential raster ######################################################</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>summer_rast <span class="ot">&lt;-</span> <span class="fu">rast</span>(summer_path)</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a><span class="fu">units</span>(summer_rast) <span class="ot">&lt;-</span> <span class="st">"W*h/m^2"</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a><span class="co"># !time!</span></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>summer_ch <span class="ot">&lt;-</span> <span class="fu">crop</span>(summer_rast, <span class="fu">vect</span>(schweiz))</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>summer_ch <span class="ot">&lt;-</span> <span class="fu">mask</span>(summer_ch, <span class="fu">vect</span>(schweiz),<span class="at">filename =</span> <span class="st">"data-intermediate/summer-ch.tif"</span>, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)  </span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a><span class="fu">units</span>(summer_ch) <span class="ot">&lt;-</span> <span class="st">"W*h/m^2"</span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a><span class="co"># !time!</span></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>schweiz<span class="sc">$</span>radiation_mean <span class="ot">&lt;-</span> <span class="fu">global_with_units</span>(summer_ch)</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>schweiz<span class="sc">$</span>area <span class="ot">&lt;-</span> <span class="fu">st_area</span>(schweiz)</span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>schweiz<span class="sc">$</span>radiation_total <span class="ot">&lt;-</span> schweiz<span class="sc">$</span>radiation_mean<span class="sc">*</span>schweiz<span class="sc">$</span>area</span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(schweiz, <span class="at">file =</span> <span class="st">"data-intermediate/schweiz.Rda"</span>)</span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a><span class="do">## Standing Water ##############################################################</span></span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser <span class="ot">&lt;-</span> sfarrow<span class="sc">::</span><span class="fu">st_read_parquet</span>(stehende_gewaesser_path) <span class="sc">|&gt;</span> </span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_zm</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_set_crs</span>(<span class="dv">2056</span>)</span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>staumauern <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">"data/Dataset_SONNENLAND/Classification/DAMS/OBJEKTART_Staumauer.shp"</span>)</span>
+<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a><span class="co"># I had initially thought that we would have select lakes within a distance to </span></span>
+<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a><span class="co"># "staumauern" and so introduce a bit of tolerance. It turns out however, that all</span></span>
+<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a><span class="co"># "staumauern" actually intersect the "stauseen" they are closest to, so the distance is</span></span>
+<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a><span class="co"># usually 0. They usually touch (but not always),  but they always intersect.</span></span>
+<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a><span class="co"># !time!</span></span>
+<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser <span class="ot">&lt;-</span> <span class="fu">st_join</span>(stehende_gewaesser, <span class="fu">transmute</span>(staumauern, <span class="at">staumauer =</span> <span class="fu">row_number</span>()))</span>
+<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a><span class="co"># !time!</span></span>
+<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser<span class="sc">$</span>radiation_mean <span class="ot">&lt;-</span> <span class="fu">extract_with_units</span>(summer_ch, stehende_gewaesser)</span>
+<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser<span class="sc">$</span>area <span class="ot">&lt;-</span> <span class="fu">st_area</span>(stehende_gewaesser)</span>
+<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser<span class="sc">$</span>radiation_total <span class="ot">&lt;-</span> stehende_gewaesser<span class="sc">$</span>radiation_mean <span class="sc">*</span> stehende_gewaesser<span class="sc">$</span>area</span>
+<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser <span class="ot">&lt;-</span> <span class="fu">select</span>(stehende_gewaesser, radiation_mean, area, radiation_total,staumauer)</span>
+<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(stehende_gewaesser, <span class="at">file =</span> <span class="st">"data-intermediate/stehende_gewaesser.Rda"</span>)</span>
+<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a><span class="do">## Agriculture #################################################################</span></span>
+<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a><span class="do">## Roads  ######################################################################</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div class="cell">
 <details>
 <summary>Load cached results from data-processing.R</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"data-intermediate/schweiz.Rda"</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>area_ch <span class="ot">&lt;-</span> <span class="fu">print_with_units</span>(schweiz<span class="sc">$</span>area, <span class="st">"km^2"</span>,<span class="at">digits =</span> <span class="dv">0</span>)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>radiation_ch_frac <span class="ot">&lt;-</span> schweiz<span class="sc">$</span>radiation_total<span class="sc">*</span><span class="fl">0.5</span><span class="sc">*</span><span class="fl">0.2</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>radiation_total_str <span class="ot">&lt;-</span> <span class="fu">print_with_units</span>(schweiz<span class="sc">$</span>radiation_total, <span class="st">"TW*h"</span>)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>radiation_ch_frac_str <span class="ot">&lt;-</span> <span class="fu">print_with_units</span>(radiation_ch_frac, <span class="at">output_unit =</span> <span class="st">"TW*h"</span>,<span class="at">digits =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"data-intermediate/schweiz.Rda"</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>area_ch <span class="ot">&lt;-</span> <span class="fu">print_with_units</span>(schweiz<span class="sc">$</span>area, <span class="st">"km^2"</span>,<span class="at">digits =</span> <span class="dv">0</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>radiation_ch_frac <span class="ot">&lt;-</span> schweiz<span class="sc">$</span>radiation_total<span class="sc">*</span><span class="fl">0.5</span><span class="sc">*</span><span class="fl">0.2</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>radiation_total_str <span class="ot">&lt;-</span> <span class="fu">print_with_units</span>(schweiz<span class="sc">$</span>radiation_total, <span class="st">"TW*h"</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>radiation_ch_frac_str <span class="ot">&lt;-</span> <span class="fu">print_with_units</span>(radiation_ch_frac, <span class="at">output_unit =</span> <span class="st">"TW*h"</span>,<span class="at">digits =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>This passage presents an analysis of the solar energy potential in Switzerland during the summer season. The total radiation during this period across the entire country, which has an area of 41’301 km^2, is estimated to be 27’448 h*TW during the summer months. However, not all of this radiation can be harnessed by solar panels, as the type of panel used affects the amount of radiation that is captured. In this study, the fraction of radiation that falls onto a solar panel is assumed to be 0.5, or 50%, based on the global capture rate (GCR).</p>
@@ -423,20 +431,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details>
 <summary>Load cached results from data-processing.R</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"data-intermediate/stehende_gewaesser.Rda"</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser_summer_total <span class="ot">&lt;-</span> <span class="fu">sum</span>(stehende_gewaesser<span class="sc">$</span>radiation_total, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser_summer_frac <span class="ot">&lt;-</span> stehende_gewaesser_summer_total<span class="sc">*</span><span class="fl">0.5</span><span class="sc">*</span><span class="fl">0.2</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser_summer_frac_str <span class="ot">&lt;-</span> <span class="fu">print_with_units</span>(stehende_gewaesser_summer_frac, <span class="st">"TW*h"</span>)</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>percent_pretty <span class="ot">&lt;-</span> \(x, <span class="at">digits =</span> <span class="dv">2</span>, <span class="at">append =</span> <span class="st">"%"</span>, <span class="at">sep =</span> <span class="st">" "</span>) <span class="fu">paste</span>(<span class="fu">formatC</span>(<span class="fu">as.numeric</span>(x),<span class="at">format =</span> <span class="st">"f"</span>,<span class="at">digits =</span> digits), append, <span class="at">sep =</span> sep)</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>gewaesser_percent <span class="ot">&lt;-</span> <span class="fu">percent_pretty</span>(stehende_gewaesser_summer_frac<span class="sc">/</span>radiation_ch_frac<span class="sc">*</span><span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"data-intermediate/stehende_gewaesser.Rda"</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser_summer_total <span class="ot">&lt;-</span> <span class="fu">sum</span>(stehende_gewaesser<span class="sc">$</span>radiation_total, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser_summer_frac <span class="ot">&lt;-</span> stehende_gewaesser_summer_total<span class="sc">*</span><span class="fl">0.5</span><span class="sc">*</span><span class="fl">0.2</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser_summer_frac_str <span class="ot">&lt;-</span> <span class="fu">print_with_units</span>(stehende_gewaesser_summer_frac, <span class="st">"TW*h"</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>percent_pretty <span class="ot">&lt;-</span> \(x, <span class="at">digits =</span> <span class="dv">2</span>, <span class="at">append =</span> <span class="st">"%"</span>, <span class="at">sep =</span> <span class="st">" "</span>) <span class="fu">paste</span>(<span class="fu">formatC</span>(<span class="fu">as.numeric</span>(x),<span class="at">format =</span> <span class="st">"f"</span>,<span class="at">digits =</span> digits), append, <span class="at">sep =</span> sep)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>gewaesser_percent <span class="ot">&lt;-</span> <span class="fu">percent_pretty</span>(stehende_gewaesser_summer_frac<span class="sc">/</span>radiation_ch_frac<span class="sc">*</span><span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>The energy potential for standing water, which takes into account both the GCR and efficiency rate, is estimated to be 55 h*TW. This potential represents approximately 1.99 % of the overall solar potential in Switzerland.</p>
@@ -444,81 +452,242 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser_by_type <span class="ot">&lt;-</span> stehende_gewaesser <span class="sc">|&gt;</span> </span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(<span class="at">Type =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(staumauer),<span class="st">"Natural"</span>,<span class="st">"Reservoir"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">radiation_total =</span> <span class="fu">set_units</span>(<span class="fu">sum</span>(radiation_total, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="st">"GW*h"</span>),</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">Radiation_corrected =</span> radiation_total<span class="sc">*</span><span class="fl">0.5</span><span class="sc">*</span><span class="fl">0.2</span>,</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">Percentage_of_national =</span> <span class="fu">percent_pretty</span>(Radiation_corrected<span class="sc">/</span>radiation_ch_frac<span class="sc">*</span><span class="dv">100</span>)</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(stehende_gewaesser_by_type, <span class="at">col.names =</span> <span class="fu">str_replace_all</span>(<span class="fu">colnames</span>(stehende_gewaesser_by_type), <span class="st">"_"</span>, <span class="st">" "</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>stehende_gewaesser_by_type <span class="ot">&lt;-</span> stehende_gewaesser <span class="sc">|&gt;</span> </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(<span class="at">Type =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(staumauer),<span class="st">"Natural"</span>,<span class="st">"Reservoir"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">radiation_total =</span> <span class="fu">set_units</span>(<span class="fu">sum</span>(radiation_total, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), GW<span class="sc">*</span>h),</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">Radiation_corrected =</span> radiation_total<span class="sc">*</span><span class="fl">0.5</span><span class="sc">*</span><span class="fl">0.2</span>,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">Prop_of_national =</span> <span class="fu">set_units</span>(Radiation_corrected<span class="sc">/</span>radiation_ch_frac, <span class="st">"%"</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="fu">mykable</span>(stehende_gewaesser_by_type)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<table class="table table-sm table-striped small">
+<table data-quarto-postprocess="true" class="table table-sm table-striped small">
 <colgroup>
-<col style="width: 14%">
-<col style="width: 23%">
-<col style="width: 28%">
-<col style="width: 33%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
 </colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: left;">Type</th>
-<th style="text-align: right;">radiation total</th>
-<th style="text-align: right;">Radiation corrected</th>
-<th style="text-align: left;">Percentage of national</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Type<br>
+</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Radiation Total<br>
+GW*h</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Radiation Corrected<br>
+GW*h</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Prop Of National<br>
+%</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Natural</td>
-<td style="text-align: right;">488923.38 GW*h</td>
-<td style="text-align: right;">48892.338 GW*h</td>
-<td style="text-align: left;">1.78 %</td>
+<td style="text-align: right;">488923.38</td>
+<td style="text-align: right;">48892.338</td>
+<td style="text-align: right;">1.7812798</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Reservoir</td>
-<td style="text-align: right;">57024.67 GW*h</td>
-<td style="text-align: right;">5702.467 GW*h</td>
-<td style="text-align: left;">0.21 %</td>
+<td style="text-align: right;">57024.67</td>
+<td style="text-align: right;">5702.467</td>
+<td style="text-align: right;">0.2077562</td>
 </tr>
 </tbody>
 </table>
+
+
 </div>
 </div>
 </section>
 <section id="agricultural" class="level2">
 <h2 class="anchored" data-anchor-id="agricultural">Agricultural</h2>
+<p>The agricultural areas of Switzerland are stored in two vector datasets. Currently, there the data of two cantons are missing, TI and AR (see <a href="https://github.com/sunwell-foss/sonnenland/issues/8">#8</a>). To calculate the potential power production in these areas, the vector datasets were first rasterized with the same extent and cell size as the dataset <em>Summer Production</em> (see <a href="#tbl-datasets">Table&nbsp;1</a>), with a fixed value of 1. Then, the two rasters werde multiplied, thus generating a new raster with solar radiation values only in agricultural areas. The mean value of this new raster was multiplied by the summed area of all polygons. These steps was then repeated for just the subset <em>Regular Farmland</em> and <em>Summer Grazing Land</em>, respectively.</p>
 <div class="cell" data-file="data-processing.sh">
 <details>
 <summary>Data processing</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculated outside R for speed</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># This process takes approx 1 - 2h</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># The code was not run as it's written here, I've cleaned it up a little</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="va">rasterdir</span><span class="op">=</span>data/Dataset_SONNENLAND/Radiation</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="va">lwbdir</span><span class="op">=</span>data/Dataset_SONNENLAND/Classification/Agricultural/Farming_most_cantons/shapefiles/lwb_perimeter_ln_sf</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="va">intermediatedir</span><span class="op">=</span>data-intermediate</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="ex">pkextractogr</span> <span class="at">-i</span> <span class="va">$rasterdir</span>/tilt_30_summer_2056.tif <span class="at">-s</span> <span class="va">$lwbdir</span>/perimeter_ln_sf.shp <span class="at">-r</span> mean <span class="at">-f</span> CSV <span class="at">-o</span> <span class="va">$intermediatedir</span>/lwb_summer_mean.csv</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co"># The above computation caused many warnings (maxed out at 1'000):</span></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co"># TopologyException: side location conflict at 2634055.9960000003 1201497.003. This can occur if the input geometry is invalid.</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="co"># More than 1000 errors or warnings have been reported. No more will be reported from now.</span></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="co"># it might be wise to transform to geopackage and makevalid?</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="va">raster</span><span class="op">=</span>data/Dataset_SONNENLAND/Radiation/tilt_30_summer_2056.tif</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="va">tempdir</span><span class="op">=</span>data-intermediate</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># working with multiple values does not seem to work</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#te=$(gdalinfo $rasterdir/tilt_30_summer_2056.tif -json | jq -r '.cornerCoordinates | " " + (.upperLeft[0]|tostring) + " " + (.lowerLeft[1]|tostring) + " " + (.lowerRight[0]|tostring) + " " + (.upperRight[1]|tostring)')</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">#tr=$(gdalinfo $rasterdir/tilt_30_summer_2056.tif | grep "Pixel Size" | cut -d'(' -f2 | cut -d')' -f1 | awk -F',' '{printf("%1.0f %1.0f\n", $1, $2)}')</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="va">xmin</span><span class="op">=</span><span class="va">$(</span><span class="ex">gdalinfo</span> <span class="va">$raster</span> <span class="at">-json</span> <span class="kw">|</span> <span class="ex">jq</span> <span class="at">-r</span> .cornerCoordinates <span class="kw">|</span> <span class="ex">jq</span> <span class="at">-r</span> <span class="st">".lowerLeft[0]"</span><span class="va">)</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="va">ymin</span><span class="op">=</span><span class="va">$(</span><span class="ex">gdalinfo</span> <span class="va">$raster</span> <span class="at">-json</span> <span class="kw">|</span> <span class="ex">jq</span> <span class="at">-r</span> .cornerCoordinates <span class="kw">|</span> <span class="ex">jq</span> <span class="at">-r</span> <span class="st">".lowerLeft[1]"</span><span class="va">)</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="va">xmax</span><span class="op">=</span><span class="va">$(</span><span class="ex">gdalinfo</span> <span class="va">$raster</span> <span class="at">-json</span> <span class="kw">|</span> <span class="ex">jq</span> <span class="at">-r</span> .cornerCoordinates <span class="kw">|</span> <span class="ex">jq</span> <span class="at">-r</span> <span class="st">".upperRight[0]"</span><span class="va">)</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="va">ymax</span><span class="op">=</span><span class="va">$(</span><span class="ex">gdalinfo</span> <span class="va">$raster</span> <span class="at">-json</span> <span class="kw">|</span> <span class="ex">jq</span> <span class="at">-r</span> .cornerCoordinates <span class="kw">|</span> <span class="ex">jq</span> <span class="at">-r</span> <span class="st">".upperRight[1]"</span><span class="va">)</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="va">xres</span><span class="op">=</span><span class="va">$(</span><span class="ex">gdalinfo</span> <span class="va">$raster</span> <span class="kw">|</span> <span class="fu">grep</span> <span class="st">"Pixel Size"</span> <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-d</span><span class="st">'('</span> <span class="at">-f2</span> <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-d</span><span class="st">')'</span> <span class="at">-f1</span> <span class="kw">|</span> <span class="fu">awk</span> <span class="at">-F</span><span class="st">','</span> <span class="st">'{print $1}'</span><span class="va">)</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="va">yres</span><span class="op">=</span><span class="va">$(</span><span class="ex">gdalinfo</span> <span class="va">$raster</span> <span class="kw">|</span> <span class="fu">grep</span> <span class="st">"Pixel Size"</span> <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-d</span><span class="st">'('</span> <span class="at">-f2</span> <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-d</span><span class="st">')'</span> <span class="at">-f1</span> <span class="kw">|</span> <span class="fu">awk</span> <span class="at">-F</span><span class="st">','</span> <span class="st">'{print $2}'</span><span class="va">)</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="co">## Agriculture #################################################################</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="va">lwb</span><span class="op">=</span>data/Dataset_SONNENLAND/Classification/Agricultural/Farming_most_cantons/shapefiles/lwb_perimeter_ln_sf/perimeter_ln_sf.shp</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="va">lwb2</span><span class="op">=</span>data/Dataset_SONNENLAND/Classification/Agricultural/farming_ar_nw_ow_vd/geopackage/lwb_perimeter_ln_sf_lv95.gpkg</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a><span class="co"># for the full datasets</span></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a><span class="va">temprast1</span><span class="op">=</span><span class="va">$tempdir</span>/perimeter_ln_sf.tif</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a><span class="va">temprast2</span><span class="op">=</span><span class="va">$tempdir</span>/summer_perimeter_ln_sf.tif</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a><span class="va">description</span><span class="op">=</span><span class="st">"all values"</span></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a><span class="ex">gdal_rasterize</span> <span class="at">-burn</span> 1 <span class="at">-ot</span> Byte <span class="at">-co</span> COMPRESS=DEFLATE <span class="at">-te</span> <span class="va">$xmin</span> <span class="va">$ymin</span> <span class="va">$xmax</span> <span class="va">$ymax</span> <span class="at">-tr</span> <span class="va">$xres</span> <span class="va">$xres</span> <span class="va">$lwb</span> <span class="va">$temprast1</span></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a><span class="ex">gdal_rasterize</span> <span class="at">-burn</span> 1 <span class="va">$lwb2</span> <span class="va">$temprast1</span></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a><span class="ex">gdal_calc.py</span> <span class="at">-A</span> <span class="va">$raster</span> <span class="at">-B</span> <span class="va">$temprast1</span> <span class="at">--outfile</span><span class="op">=</span><span class="va">$temprast2</span> <span class="at">--calc</span><span class="op">=</span><span class="st">"A*B"</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="va">$description</span><span class="st">", "</span> <span class="va">$(</span><span class="ex">gdalinfo</span> <span class="at">-stats</span> <span class="va">$temprast2</span> <span class="kw">|</span> <span class="fu">grep</span> STATISTICS_MEAN <span class="kw">|</span> <span class="fu">awk</span> <span class="at">-F</span><span class="op">=</span> <span class="st">'{print $2}'</span><span class="va">)</span> <span class="op">&gt;</span> <span class="va">$tempdir</span>/summer_perimeter_ln_sf_mean.txt</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a><span class="co"># for the individual datasets</span></span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a><span class="va">temprast1</span><span class="op">=</span><span class="va">$tempdir</span>/perimeter_ln_sf2.tif</span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a><span class="va">temprast2</span><span class="op">=</span><span class="va">$tempdir</span>/summer_perimeter_ln_sf2.tif</span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a><span class="va">description</span><span class="op">=</span><span class="st">"Landwirtschaftliche Nutzfläche"</span></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a><span class="va">sql</span><span class="op">=</span><span class="st">"SELECT * FROM perimeter_ln_sf WHERE "</span>typ<span class="st">" = 'Landwirtschaftliche Nutzfläche'"</span></span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a><span class="co"># the following lines are pretty identical to the above. Differenes:</span></span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a><span class="co"># - the sql statement</span></span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a><span class="co"># - the output is appended to the existing file</span></span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a><span class="ex">gdal_rasterize</span> <span class="at">-sql</span> <span class="va">$sql</span> <span class="at">-burn</span> 1 <span class="at">-ot</span> Byte <span class="at">-co</span> COMPRESS=DEFLATE <span class="at">-te</span> <span class="va">$xmin</span> <span class="va">$ymin</span> <span class="va">$xmax</span> <span class="va">$ymax</span> <span class="at">-tr</span> <span class="va">$xres</span> <span class="va">$xres</span> <span class="va">$lwb</span> <span class="va">$temprast1</span></span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a><span class="ex">gdal_rasterize</span> <span class="at">-sql</span> <span class="va">$sql</span> <span class="at">-burn</span> 1 <span class="va">$lwb2</span> <span class="va">$temprast1</span></span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a><span class="ex">gdal_calc.py</span> <span class="at">-A</span> <span class="va">$raster</span> <span class="at">-B</span> <span class="va">$temprast1</span> <span class="at">--outfile</span><span class="op">=</span><span class="va">$temprast2</span> <span class="at">--calc</span><span class="op">=</span><span class="st">"A*B"</span></span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="va">$description</span><span class="st">", "</span> <span class="va">$(</span><span class="ex">gdalinfo</span> <span class="at">-stats</span> <span class="va">$temprast2</span> <span class="kw">|</span> <span class="fu">grep</span> STATISTICS_MEAN <span class="kw">|</span> <span class="fu">awk</span> <span class="at">-F</span><span class="op">=</span> <span class="st">'{print $2}'</span><span class="va">)</span> <span class="op">&gt;&gt;</span> <span class="va">$tempdir</span>/summer_perimeter_ln_sf_mean.txt</span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a><span class="va">temprast1</span><span class="op">=</span><span class="va">$tempdir</span>/perimeter_ln_sf3.tif</span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a><span class="va">temprast2</span><span class="op">=</span><span class="va">$tempdir</span>/summer_perimeter_ln_sf3.tif</span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a><span class="va">description</span><span class="op">=</span><span class="st">"Sömmerungsgebiet"</span></span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a><span class="va">sql</span><span class="op">=</span><span class="st">"SELECT * FROM perimeter_ln_sf WHERE "</span>typ<span class="st">" = 'Sömmerungsgebiet'"</span></span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a><span class="co"># the following lines are identical to the above. </span></span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a><span class="ex">gdal_rasterize</span> <span class="at">-sql</span> <span class="va">$sql</span> <span class="at">-burn</span> 1 <span class="at">-ot</span> Byte <span class="at">-co</span> COMPRESS=DEFLATE <span class="at">-te</span> <span class="va">$xmin</span> <span class="va">$ymin</span> <span class="va">$xmax</span> <span class="va">$ymax</span> <span class="at">-tr</span> <span class="va">$xres</span> <span class="va">$xres</span> <span class="va">$lwb</span> <span class="va">$temprast1</span></span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a><span class="ex">gdal_rasterize</span> <span class="at">-sql</span> <span class="va">$sql</span> <span class="at">-burn</span> 1 <span class="va">$lwb2</span> <span class="va">$temprast1</span></span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a><span class="ex">gdal_calc.py</span> <span class="at">-A</span> <span class="va">$raster</span> <span class="at">-B</span> <span class="va">$temprast1</span> <span class="at">--outfile</span><span class="op">=</span><span class="va">$temprast2</span> <span class="at">--calc</span><span class="op">=</span><span class="st">"A*B"</span></span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="va">$description</span><span class="st">", "</span> <span class="va">$(</span><span class="ex">gdalinfo</span> <span class="at">-stats</span> <span class="va">$temprast2</span> <span class="kw">|</span> <span class="fu">grep</span> STATISTICS_MEAN <span class="kw">|</span> <span class="fu">awk</span> <span class="at">-F</span><span class="op">=</span> <span class="st">'{print $2}'</span><span class="va">)</span> <span class="op">&gt;&gt;</span> <span class="va">$tempdir</span>/summer_perimeter_ln_sf_mean.txt</span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a><span class="co"># this is for both datasts and subsets</span></span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a><span class="ex">ogr2ogr</span> <span class="at">-dialect</span> sqlite <span class="at">-sql</span> <span class="st">"SELECT typ, SUM(flaeche_m2) as flaeche_m2, 'lwb1' as file FROM perimeter_ln_sf GROUP BY typ "</span> <span class="va">$tempdir</span>/lwb1_summary.csv <span class="va">$lwb</span></span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a><span class="ex">ogr2ogr</span> <span class="at">-dialect</span> sqlite <span class="at">-sql</span> <span class="st">"SELECT typ, SUM(flaeche_m2) as flaeche_m2, 'lwb2' as file FROM perimeter_ln_sf GROUP BY typ "</span> <span class="va">$tempdir</span>/lwb2_summary.csv <span class="va">$lwb2</span></span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a><span class="co">## Roads #######################################################################</span></span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a><span class="va">roads</span><span class="op">=</span>data/Dataset_SONNENLAND/Classification/ROADS/swissTLM3D_TLM_STRASSE.shp</span>
+<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a><span class="va">temprast1</span><span class="op">=</span><span class="va">$tempdir</span>/roads_bund.tif</span>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a><span class="va">temprast2</span><span class="op">=</span><span class="va">$tempdir</span>/summer_roads_bund.tif3</span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a><span class="va">tempgpkg</span><span class="op">=</span><span class="va">$tempdir</span>/roads_bund.gpkg</span>
+<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a><span class="va">sql</span><span class="op">=</span><span class="st">"SELECT buff.geom, ST_AREA(buff.geom) as area_m2 FROM (SELECT ST_UNION(ST_BUFFER(geometry, 10)) as geom FROM swissTLM3D_TLM_STRASSE WHERE EIGENTUEME = 'Bund') buff"</span></span>
+<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a><span class="va">description</span><span class="op">=</span><span class="st">"Bundesstrassen"</span></span>
+<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a><span class="ex">ogr2ogr</span> <span class="at">-dialect</span> sqlite <span class="at">-sql</span> <span class="va">$sql</span> <span class="va">$tempgpkg</span> <span class="va">$roads</span> <span class="at">-nln</span> roads_bund</span>
+<span id="cb10-75"><a href="#cb10-75" aria-hidden="true" tabindex="-1"></a><span class="ex">gdal_rasterize</span> <span class="at">-burn</span> 1 <span class="at">-ot</span> Byte <span class="at">-co</span> COMPRESS=DEFLATE <span class="at">-te</span> <span class="va">$xmin</span> <span class="va">$ymin</span> <span class="va">$xmax</span> <span class="va">$ymax</span> <span class="at">-tr</span> <span class="va">$xres</span> <span class="va">$xres</span> <span class="va">$tempgpkg</span> <span class="va">$temprast1</span></span>
+<span id="cb10-76"><a href="#cb10-76" aria-hidden="true" tabindex="-1"></a><span class="ex">gdal_calc.py</span> <span class="at">-A</span> <span class="va">$raster</span> <span class="at">-B</span> <span class="va">$temprast1</span> <span class="at">--outfile</span><span class="op">=</span><span class="va">$temprast2</span> <span class="at">--calc</span><span class="op">=</span><span class="st">"A*B"</span></span>
+<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="va">$description</span><span class="st">", "</span> <span class="va">$(</span><span class="ex">gdalinfo</span> <span class="at">-stats</span> <span class="va">$temprast2</span> <span class="kw">|</span> <span class="fu">grep</span> STATISTICS_MEAN <span class="kw">|</span> <span class="fu">awk</span> <span class="at">-F</span><span class="op">=</span> <span class="st">'{print $2}'</span><span class="va">)</span> <span class="op">&gt;</span> <span class="va">$tempdir</span>/summer_road_mean.txt</span>
+<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a><span class="ex">ogr2ogr</span> <span class="va">$tempgpkg</span>.csv <span class="va">$tempgpkg</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<section id="agricultural-areas-and-summering-areas" class="level3">
-<h3 class="anchored" data-anchor-id="agricultural-areas-and-summering-areas">Agricultural areas and summering areas</h3>
-</section>
+<div class="cell">
+<details>
+<summary>Load cached results from data-processing.sh</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>summer_perimeter_ln_sf <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data-intermediate/summer_perimeter_ln_sf_mean.txt"</span>,<span class="fu">c</span>(<span class="st">"dataset"</span>,<span class="st">"mean_value"</span>))</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">units</span>(summer_perimeter_ln_sf<span class="sc">$</span>mean_value) <span class="ot">&lt;-</span> <span class="st">"W*h/m^2"</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>lwb_summary <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">list.files</span>(<span class="st">"data-intermediate"</span>, <span class="at">pattern =</span> <span class="st">"lwb</span><span class="sc">\\</span><span class="st">d_summary.csv"</span>,<span class="at">full.names =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span> <span class="fu">group_by</span>(typ) <span class="sc">|&gt;</span> </span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">flaeche_m2 =</span> <span class="fu">sum</span>(flaeche_m2))</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>lwb_summary2 <span class="ot">&lt;-</span> lwb_summary <span class="sc">|&gt;</span> </span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">typ =</span> <span class="st">"all values"</span>, <span class="at">flaeche_m2 =</span> <span class="fu">sum</span>(flaeche_m2)) <span class="sc">|&gt;</span> </span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbind</span>(lwb_summary)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="fu">units</span>(lwb_summary2<span class="sc">$</span>flaeche_m2) <span class="ot">&lt;-</span> <span class="st">"m^2"</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>summer_perimeter_ln_sf2 <span class="ot">&lt;-</span> <span class="fu">left_join</span>(summer_perimeter_ln_sf, lwb_summary2, <span class="at">by =</span> <span class="fu">c</span>(<span class="at">dataset =</span> <span class="st">"typ"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">radiation =</span> mean_value <span class="sc">*</span> flaeche_m2,</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">radiation_corrected =</span> radiation <span class="sc">*</span> <span class="fl">0.5</span> <span class="sc">*</span> <span class="fl">0.2</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>summer_perimeter_ln_sf2 <span class="sc">|&gt;</span> </span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">Categroy =</span> dataset, </span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">Area =</span> <span class="fu">set_units</span>(flaeche_m2, km<span class="sc">^</span><span class="dv">2</span>), </span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">Radiation =</span> <span class="fu">set_units</span>(radiation, TW<span class="sc">*</span>h), </span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">Radiation_corrected =</span> <span class="fu">set_units</span>(radiation_corrected, TW<span class="sc">*</span>h)</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> </span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mykable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table data-quarto-postprocess="true" class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Categroy<br>
+</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Area<br>
+km^2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Radiation<br>
+h*TW</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Radiation Corrected<br>
+h*TW</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">all values</td>
+<td style="text-align: right;">16207.954</td>
+<td style="text-align: right;">1174.5602</td>
+<td style="text-align: right;">117.45602</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Landwirtschaftliche Nutzfläche</td>
+<td style="text-align: right;">11057.022</td>
+<td style="text-align: right;">105.6962</td>
+<td style="text-align: right;">10.56962</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Sömmerungsgebiet</td>
+<td style="text-align: right;">5150.932</td>
+<td style="text-align: right;">121.9738</td>
+<td style="text-align: right;">12.19738</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
 </section>
 <section id="roads" class="level2">
 <h2 class="anchored" data-anchor-id="roads">Roads</h2>
+<p>From the SwissTLM roads dataset, all roads belonging to FEDRO were buffered with a distance of 10m. The result was rasterized and the mean solar radiation of all cells was calculated. With this mean value and the surface area of the buffered roads, the solar potential was calculated.</p>
+<div class="cell">
+<details>
+<summary>Load cached results from data-processing.sh</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>roads_buffered_area <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data-intermediate/roads_bund.gpkg.csv"</span>,<span class="at">col_select =</span> <span class="st">"area_m2"</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>roads_buffered_mean <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data-intermediate/summer_road_mean.txt"</span>,<span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">"dataset"</span>,<span class="st">"mean_value"</span>))</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>roads_buffered <span class="ot">&lt;-</span> <span class="fu">cbind</span>(roads_buffered_area, roads_buffered_mean)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">units</span>(roads_buffered<span class="sc">$</span>area_m2) <span class="ot">&lt;-</span> <span class="st">"m2"</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">units</span>(roads_buffered<span class="sc">$</span>mean_value) <span class="ot">&lt;-</span> <span class="st">"W*h/m^2"</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>roads_potential <span class="ot">&lt;-</span> <span class="fu">set_units</span>(roads_buffered<span class="sc">$</span>area_m2<span class="sc">*</span>roads_buffered<span class="sc">$</span>mean_value, GW<span class="sc">*</span>h)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>roads_potential_corrected <span class="ot">&lt;-</span> roads_potential<span class="sc">*</span><span class="fl">0.5</span><span class="sc">*</span><span class="fl">0.2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The solar potential alongside roads is 20 GW<em>h. Taking efficiency and GWR into consideration, the corrected solar potential alongside roads is 2 GW</em>h.</p>
 </section>
 </section>
 
