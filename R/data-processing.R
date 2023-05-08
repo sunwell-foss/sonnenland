@@ -5,9 +5,8 @@ summer_path <- "data/Dataset_SONNENLAND/Radiation/tilt_30_summer_2056.tif"
 swissboundaries_path <- "data/swissboundaries3d_2023-01_2056_5728.gdb/swissBOUNDARIES3D_1_4_LV95_LN02.gpkg"
 stehende_gewaesser_path <- "data/Dataset_SONNENLAND/Classification/Standing_Water/stehende_gewaesser_merged.parquet"
 staumauer_path <- "data/Dataset_SONNENLAND/Classification/DAMS/OBJEKTART_Staumauer.shp"
+roads_path <- "data/Dataset_SONNENLAND/Classification/ROADS/swissTLM3D_TLM_STRASSE.parquet"
 
-# Landw. Bewirtschaftung: Perimeter LN- und Sömmerungsflächen
-lwb_path <- "data/Dataset_SONNENLAND/Classification/Agricultural/Farming_most_cantons/shapefiles/lwb_perimeter_ln_sf/perimeter_ln_sf.parquet"
 
 ## Switzerland's borders #######################################################
 
@@ -34,6 +33,7 @@ cantons <- left_join(cantons, canton_names, by = c("NAME" = "canton_long"))
 ## Solar potential raster ######################################################
 
 summer_rast <- rast(summer_path)
+units(summer_rast) <- "W*h/m^2"
 
 # !time!
 summer_ch <- crop(summer_rast, vect(schweiz))
@@ -86,22 +86,7 @@ save(stehende_gewaesser, file = "data-intermediate/stehende_gewaesser.Rda")
 ## Agriculture #################################################################
 
 
-lwb <- sfarrow::st_read_parquet(lwb_path)
-
-
-units(lwb$flaeche_m2) <- "m^2"
-# !time!
-lwb_summer <- extract_with_units(summer_ch, lwb)
-
-lwb[2,] |> st_area()
-
-lwb_available_cantons <- unique(lwb$kanton)
-
-
-
-lwb_unavailable_cantons <- cantons$canton_short[!(cantons$canton_short %in% lwb_available_cantons)]
-
-save(lwb_unavailable_cantons, file = "data-intermediate/lwb_unavailable_cantons.Rda")
+## Roads  ######################################################################
 
 
 

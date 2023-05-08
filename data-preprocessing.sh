@@ -11,10 +11,15 @@ ogr2ogr $DIR2/stehende_gewaesser_merged.parquet $DIR2/stehende_gewaesser_merged.
 
 # convert swissboundaries into a geopackage
 DIR3=data/swissboundaries3d_2023-01_2056_5728.gdb
-ogr2ogr $DIR3/swissBOUNDARIES3D_1_4_LV95_LN02.gpkg \
+ogr2ogr data/swissBOUNDARIES3D_1_4_LV95_LN02.gpkg \
   $DIR3/swissBOUNDARIES3D_1_4_LV95_LN02.gdb
 
 
-DIR4=data/Dataset_SONNENLAND/Classification/Agricultural/Farming_most_cantons/shapefiles/lwb_perimeter_ln_sf
-  ogr2ogr $DIR4/perimeter_ln_sf.parquet $DIR4/perimeter_ln_sf.shp
+# DIR4=data/Dataset_SONNENLAND/Classification/Agricultural/Farming_most_cantons/shapefiles/lwb_perimeter_ln_sf
+# ogr2ogr $DIR4/perimeter_ln_sf.parquet $DIR4/perimeter_ln_sf.shp
+# 
+# DIR5=data/Dataset_SONNENLAND/Classification/Agricultural/farming_ar_nw_ow_vd/geopackage
+# ogr2ogr $DIR5/lwb_perimeter_ln_sf_lv95.parquet $DIR5/lwb_perimeter_ln_sf_lv95.gpkg
 
+dir_roads=data/Dataset_SONNENLAND/Classification/ROADS
+ogr2ogr $dir_roads/swissTLM3D_TLM_STRASSE.parquet $dir_roads/swissTLM3D_TLM_STRASSE.shp
