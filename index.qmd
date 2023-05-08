@@ -35,15 +35,17 @@ This report presents a detailed overview of the entire processing pipeline and s
 library(tmap)
 library(units)
 library(stringr)
+library(forcats)
+library(ggplot2)
 options("sf_max.plot"=1)
 
 # experimental: dont print the "[" and "]" sorrounding the units
 units_options("group" = c("",""))
+```
 
+
+```{r}
 print_with_units <- function(input, output_unit = NULL, digits = 2, big.mark = "'", sep = " ", scientific = FALSE, ...){
-  
- 
-  
   if(is.null(output_unit)){
     output_unit <- units(input)
   }
@@ -60,6 +62,20 @@ print_with_units <- function(input, output_unit = NULL, digits = 2, big.mark = "
   #   units::deparse_unit(val),
   #   sep = sep)
   
+}
+
+mykable <- function(df, linesep = "<br>"){
+  colnames_old <- df |> 
+    colnames() |> 
+    str_replace_all("_", " ") |> 
+    str_to_title()
+  
+  col_units <- purrr::map(df, \(y) tryCatch(as.character(units(y)),error = \(x)""))
+  colnames_new <- paste0(colnames_old, linesep, col_units)
+  
+  df |> 
+    drop_units() |> 
+    kableExtra::kable(col.names = colnames_new, escape = FALSE)
 }
 ```
 
@@ -202,18 +218,20 @@ stehende_gewaesser_by_type <- stehende_gewaesser |>
   st_drop_geometry() |> 
   group_by(Type = ifelse(is.na(staumauer),"Natural","Reservoir")) |> 
   summarise(
-    radiation_total = set_units(sum(radiation_total, na.rm = TRUE), "GW*h"),
+    radiation_total = set_units(sum(radiation_total, na.rm = TRUE), GW*h),
   ) |> 
   mutate(
     Radiation_corrected = radiation_total*0.5*0.2,
-    Percentage_of_national = percent_pretty(Radiation_corrected/radiation_ch_frac*100)
+    Prop_of_national = set_units(Radiation_corrected/radiation_ch_frac, "%")
   )
 
-knitr::kable(stehende_gewaesser_by_type, col.names = str_replace_all(colnames(stehende_gewaesser_by_type), "_", " "))
+mykable(stehende_gewaesser_by_type)
 ```
 
 
 ## Agricultural
+
+The agricultural areas of Switzerland are stored in two vector datasets. Currently, there the data of two cantons are missing, TI and AR (see [#8](https://github.com/sunwell-foss/sonnenland/issues/8)). To calculate the potential power production in these areas, the vector datasets were first rasterized with the same extent and cell size as the dataset *Summer Production* (see @tbl-datasets), with a fixed value of 1. Then, the two rasters werde multiplied, thus generating a new raster with solar radiation values only in agricultural areas. The mean value of this new raster was multiplied by the summed area of all polygons. These steps was then repeated for just the subset *Regular Farmland* and *Summer Grazing Land*, respectively. 
 
 ```{bash}
 #| file: data-processing.sh
@@ -222,10 +240,66 @@ knitr::kable(stehende_gewaesser_by_type, col.names = str_replace_all(colnames(st
 ```
 
 
-### Agricultural areas and summering areas
+```{r}
+#| message: false
+#| code-summary: Load cached results from data-processing.sh
 
+summer_perimeter_ln_sf <- read_csv("data-intermediate/summer_perimeter_ln_sf_mean.txt",c("dataset","mean_value"))
+
+units(summer_perimeter_ln_sf$mean_value) <- "W*h/m^2"
+
+lwb_summary <- read_csv(list.files("data-intermediate", pattern = "lwb\\d_summary.csv",full.names = TRUE)) |> group_by(typ) |> 
+  summarise(flaeche_m2 = sum(flaeche_m2))
+
+lwb_summary2 <- lwb_summary |> 
+  ungroup() |> 
+  summarise(typ = "all values", flaeche_m2 = sum(flaeche_m2)) |> 
+  rbind(lwb_summary)
+
+units(lwb_summary2$flaeche_m2) <- "m^2"
+
+summer_perimeter_ln_sf2 <- left_join(summer_perimeter_ln_sf, lwb_summary2, by = c(dataset = "typ")) |> 
+  mutate(
+    radiation = mean_value * flaeche_m2,
+    radiation_corrected = radiation * 0.5 * 0.2
+    )
+
+
+
+summer_perimeter_ln_sf2 |> 
+  transmute(
+    Categroy = dataset, 
+    Area = set_units(flaeche_m2, km^2), 
+    Radiation = set_units(radiation, TW*h), 
+    Radiation_corrected = set_units(radiation_corrected, TW*h)
+    ) |> 
+  mykable()
+
+
+
+
+```
 
 
 ## Roads
 
+From the SwissTLM roads dataset, all roads belonging to FEDRO were buffered with a distance of 10m. The result was rasterized and the mean solar radiation of all cells was calculated. With this mean value and the surface area of the buffered roads, the solar potential was calculated. 
+
+```{r}
+#| message: false
+#| warning: false
+#| code-summary: Load cached results from data-processing.sh
+
+roads_buffered_area <- read_csv("data-intermediate/roads_bund.gpkg.csv",col_select = "area_m2")
+roads_buffered_mean <- read_csv("data-intermediate/summer_road_mean.txt",col_names = c("dataset","mean_value"))
+roads_buffered <- cbind(roads_buffered_area, roads_buffered_mean)
+units(roads_buffered$area_m2) <- "m2"
+units(roads_buffered$mean_value) <- "W*h/m^2"
+roads_potential <- set_units(roads_buffered$area_m2*roads_buffered$mean_value, GW*h)
+roads_potential_corrected <- roads_potential*0.5*0.2
+
+
+```
+
+The solar potential alongside roads is `r print_with_units(roads_potential)`. Taking efficiency and GWR into consideration, the corrected solar potential alongside roads is `r print_with_units(roads_potential_corrected)`.
 
