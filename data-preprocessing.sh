@@ -13,6 +13,11 @@ ogr2ogr $DIR2/stehende_gewaesser_merged.parquet $DIR2/stehende_gewaesser_merged.
 DIR3=data/swissboundaries3d_2023-01_2056_5728.gdb
 ogr2ogr data/swissBOUNDARIES3D_1_4_LV95_LN02.gpkg \
   $DIR3/swissBOUNDARIES3D_1_4_LV95_LN02.gdb
+  
+# convert the Ticino Dataset into a geopackage
+DIR_ticino=data/TI_153-1_Nutzungsfla
+ogr2ogr $DIR_ticino/TI_153-1_Nutzungsfla.gpkg -nln TI_153_1_Nutzungsfla \
+  $DIR_ticino/TI_153-1_Nutzungsfla.shp
 
 
 # DIR4=data/Dataset_SONNENLAND/Classification/Agricultural/Farming_most_cantons/shapefiles/lwb_perimeter_ln_sf

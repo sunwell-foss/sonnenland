@@ -1,0 +1,21 @@
+---
+params:
+  full: false
+---
+
+```{r}
+full <- params$full
+```
+
+```{r}
+if(full){
+  print("running")
+}
+```
+
+
+```{r}
+
+```
+
+

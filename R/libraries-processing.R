@@ -1,6 +1,0 @@
-library(sf)
-library(terra)
-library(dplyr)
-library(units)
-library(sfarrow)
-library(readr)

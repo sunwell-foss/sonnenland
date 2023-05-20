@@ -2,7 +2,7 @@
 ## File paths ##################################################################
 
 summer_path <- "data/Dataset_SONNENLAND/Radiation/tilt_30_summer_2056.tif"
-swissboundaries_path <- "data/swissboundaries3d_2023-01_2056_5728.gdb/swissBOUNDARIES3D_1_4_LV95_LN02.gpkg"
+swissboundaries_path <- "data/swissBOUNDARIES3D_1_4_LV95_LN02.gpkg"
 stehende_gewaesser_path <- "data/Dataset_SONNENLAND/Classification/Standing_Water/stehende_gewaesser_merged.parquet"
 staumauer_path <- "data/Dataset_SONNENLAND/Classification/DAMS/OBJEKTART_Staumauer.shp"
 roads_path <- "data/Dataset_SONNENLAND/Classification/ROADS/swissTLM3D_TLM_STRASSE.parquet"
