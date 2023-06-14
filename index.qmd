@@ -8,135 +8,41 @@ format:
     html: 
       code-fold: true
       css: style.css
-    # pdf:
-    #     keep-tex: true
-    #     include-in-header: preamble.tex
-    #     documentclass: FrontiersinHarvard
-    #     classoption: utf8
-    #     include-before-body: before-body.tex
-    #     echo: false
 ---
-
-```{r}
-#| echo: false
-full <- params$full
-```
-
 
 # Introduction
 
-The Sunwell group utilized solar radiation modeling to estimate the potential solar energy (measured in Kilowatt hours per square meter) across Switzerland at a 25m resolution. The objective of this study is to determine the solar potential for different land use categories, including (1) agricultural areas, (2) standing water, and (3) areas adjacent to national roads. Each of these three categories is further divided into subcategories, which will be elaborated on below. 
+The Sunwell group utilized solar radiation modeling to estimate the potential solar energy (measured in Kilowatt hours per square meter) across Switzerland at a 25m resolution. The objective of this study is to determine the solar potential for the following land use categories
 
-This report presents a detailed overview of the entire processing pipeline and showcases the findings. It is composed using [quarto](https://quarto.org), which integrates code into the document. However, the document was constructed using cached outputs rather than performing intensive computations.
+- Agricultural areas
+  - Regular Farmland
+  - Summer Grazing Land
+- Standing Water
+  - Natural Water Bodies
+  - Reservoirs
+- National Roads
 
-```{r}
-#| message: false
-#| code-summary: Libraries used for data processing
-
-if(full){
-  library(sf)
-  library(terra)
-  library(dplyr)
-  library(units)
-  library(sfarrow)
-  library(readr)
-}
-
-```
-
+This report presents a detailed overview of the entire processing pipeline and showcases the findings.
 
 ```{r}
 #| message: false
 #| code-summary: Libraries, functions and options used for this report
 library(tmap)
-library(units)
 library(stringr)
 library(forcats)
 library(ggplot2)
+library(terra)
+library(readr)
+library(tidyr)
+library(dplyr)
 options("sf_max.plot"=1)
 
-# experimental: dont print the "[" and "]" sorrounding the units
-units_options("group" = c("",""))
-```
-
-
-```{r}
-print_with_units <- function(input, output_unit = NULL, digits = 2, big.mark = "'", sep = " ", scientific = FALSE, ...){
-  if(is.null(output_unit)){
-    output_unit <- units(input)
-  }
-  val <- set_units(input, output_unit,mode = "standard")
-  
-  if(!is.null(digits)){
-    val <- round(val, digits = digits)
-  }
-  
-  capture.output(print(val, digits = 1, scientific = scientific, big.mark = big.mark))
-
-  # paste(
-  #   formatC(as.numeric(val),digits = digits, format = format,big.mark = big.mark),
-  #   units::deparse_unit(val),
-  #   sep = sep)
-  
-}
-
-mykable <- function(df, linesep = "<br>"){
-  colnames_old <- df |> 
-    colnames() |> 
-    str_replace_all("_", " ") |> 
-    str_to_title()
-  
-  col_units <- purrr::map(df, \(y) tryCatch(as.character(units(y)),error = \(x)""))
-  colnames_new <- paste0(colnames_old, linesep, col_units)
-  
-  df |> 
-    drop_units() |> 
-    kableExtra::kable(col.names = colnames_new, escape = FALSE)
-}
-```
-
-
-```{r}
-#| message: false
-#| code-summary: Custom functions used for data processing
-
-if(full){
-  # extract values from a raster file, which has units
-  extract_with_units <- function(rasterfile, vector, output_unit = NULL, fun = "mean"){
-    input_unit <- units(rasterfile)
-    stopifnot(input_unit != "")
-    if(is.null(output_unit)){
-      output_unit <- input_unit
-    }
-    vector_vect <- vect(vector)
-    extracted <- terra::extract(rasterfile,vector_vect,fun = fun)[,2]
-    extracted |>
-      units::set_units(input_unit,mode = "standard") |>
-      set_units(output_unit,mode = "standard")
-  }
-  
-  
-  global_with_units <- function(raster, fun = "mean", na.rm = TRUE, output_unit = NULL){
-    input_unit <- units(raster)
-    stopifnot(input_unit != "")
-    if(is.null(output_unit)){
-      output_unit <- input_unit
-    }
-    
-    res <- global(raster, fun, na.rm = na.rm)
-    
-    res <- res[,1]
-    units(res) <- input_unit
-    set_units(res, output_unit,mode = "standard")
-  }
-}
 ```
 
 
 # Data description
 
 The data for this analysis was mostly gathered by the Sunwell group. The core of the analysis is the raster data mentioned above and described in more detail below. 
-[add more information]{.todo}
 
 @tbl-datasets is a listing of all the datasets used in this analysis. This data is provided by Sunwell and is described in more detail [here](https://sunwell-switzerland.notion.site/Collaboration-with-Nils-5fcb9e5334e3412d82a1caed6ed672c5).
 
@@ -152,181 +58,90 @@ read_csv("data/datasets-metadata.csv") |>
 ```
 
 
-```{r}
-#| echo: false
-
-if(full){
-  summer_ch <- rast("data-intermediate/summer-ch.tif")
-  units(summer_ch) <- "W*h/m^2"
-  
-  mybreaks <- seq(0,12,2)*100000
-  
-  mybreaks2 <- mybreaks/100000
-  mylabels <- paste(head(mybreaks2,-1),tail(mybreaks2,-1), sep = "-")
-  cols <- rev(RColorBrewer::brewer.pal(6, "Spectral"))
-  
-  
-  rasterplot <- plot(summer_ch, 
-       axes = FALSE, 
-       breaks = mybreaks,
-       # legend = FALSE,
-       col = RColorBrewer::brewer.pal(6, "Spectral"),
-       plg = list(legend = mylabels, title = "KW*h/m^2")
-       )
-  
-  save(rasterplot, file = "data-intermediate/rasterplot.Rda")
-} else{
-  "data-intermediate/rasterplot.Rda"
-  
-  rasterplot
-}
-
-```
-
-
-
-# Data preprocessing
-
-
-Before processing the datasets described in @tbl-datasets, some preprocessing steps were taken. These steps were done using the command line tools `gdal` and `ogr2ogr` and are documented below. 
-
-Preprocessing invoved the following steps:
-
-- Converting the shapefiles to Geopackage or Parquet format
-- Merging files together (e.g. Standing Water was split into 2 files, OST and WEST)
-- Reprojecting the data to the Swiss coordinate system (EPSG:2056)
-
-```{bash}
-#| file: data-preprocessing.sh
-#| eval: false
-#| code-summary: Data preprocessing (data-preprocessing.sh)
-```
-
 # Data Analysis
 
-```{r}
-#| code-summary: File paths
-if(full){
-  
-  ## File paths ##################################################################
-  
-  summer_path <- "data/Dataset_SONNENLAND/Radiation/tilt_30_summer_2056.tif"
-  swissboundaries_path <- "data/swissBOUNDARIES3D_1_4_LV95_LN02.gpkg"
-  stehende_gewaesser_path <- "data/Dataset_SONNENLAND/Classification/Standing_Water/stehende_gewaesser_merged.parquet"
-  staumauer_path <- "data/Dataset_SONNENLAND/Classification/DAMS/OBJEKTART_Staumauer.shp"
-  roads_path <- "data/Dataset_SONNENLAND/Classification/ROADS/swissTLM3D_TLM_STRASSE.parquet"
-}
-```
-
 
 ```{r}
-#| code-summary: Switzerland's borders
+mean_values <- read_csv("data-intermediate/mean_values.csv")
+
+sonnendach_raw <- read_csv("data-intermediate/mean_values_sonnendach.csv",col_names = "query")
+
+sonnendach_parsed <- sonnendach_raw |> 
+  extract(query, c("key"),"^(\\w+)\\s",remove = FALSE) |> 
+  extract(query, c("value"),"\\s([\\d,\\.]+)$",remove = TRUE) |> 
+  mutate(value = as.numeric(value))
 
 
-if(full){  
-  schweiz <- st_read(swissboundaries_path, "TLM_LANDESGEBIET") |> 
-    st_zm() |> 
-    filter(NAME != "Liechtenstein") |> 
-    st_union() |> 
-    st_as_sf()
-  
-  st_geometry(schweiz) <- "geom"
-  
-  st_layers(swissboundaries_path)
-  
-  cantons <- st_read(swissboundaries_path, "TLM_KANTONSGEBIET") |> 
-    st_zm() |> 
-    group_by(NAME) |> 
-    summarise()
-  
-  canton_names <- read_csv("data/cantons.csv") |> arrange(canton_long)
-  # test
-  # anti_join(cantons, canton_names, by = c("NAME" = "canton_long"))
-  cantons <- left_join(cantons, canton_names, by = c("NAME" = "canton_long"))
-}
-```
+sonnendach_area <- sonnendach_parsed |> 
+  filter(key == "area") |> 
+  pull(value) 
 
 
-```{r}
-#| code-summary: Solar potential raster 
+# Die Berechnungen der Produktion basieren auf der Nutzung der gesamten Dachfläche (maximale Modulfläche). Anbauten wie Dachfenster, Lukarnen, Kamine oder Balkone wurden bei der Erfassung der Dachfläche nicht berücksichtigt. Die real nutzbare Dachfläche kann deshalb bedeutend kleiner ausfallen. In den meisten Fällen lohnt es sich, die gesamte real nutzbare Dachfläche mit einer PV-Anlage auszustatten. Ab September 2022 wird ein Modul-Wirkungsgrad von 20% angenommen (vorher 17%)
 
-if(full){  
-
-  summer_rast <- rast(summer_path)
-  units(summer_rast) <- "W*h/m^2"
-  
-  # !time!
-  summer_ch <- crop(summer_rast, vect(schweiz))
-  summer_ch <- mask(summer_ch, vect(schweiz),filename = "data-intermediate/summer-ch.tif", overwrite = TRUE)  
-  units(summer_ch) <- "W*h/m^2"
-  
-  
-  # !time!
-  schweiz$radiation_mean <- global_with_units(summer_ch)
-  schweiz$area <- st_area(schweiz)
-  schweiz$radiation_total <- schweiz$radiation_mean*schweiz$area
-  
-  save(schweiz, file = "data-intermediate/schweiz.Rda")
-} else{
-  load("data-intermediate/schweiz.Rda")
-}
-```
-
-
-```{r}
-#| echo: false
-mean_values <- read_csv("data-intermediate/mean_values.txt")
-
-
-eff <- 0.2
-gcr <- 0.5
-mean_values |> 
+sonnendach <- sonnendach_parsed |> 
+  filter(key != "area") |> 
   mutate(
-    ncells = rastersize_x*rastersize_y,
-    n_valid = ncells*perc_valid/100,
-    area_total_m2 = n_valid*pixelsize_x*pixelsize_y,
-    total_kwh = mean_value*area_total_m2,
-    total_gwh = total_kwh/1e6
+    area = sonnendach_area
+  ) |> 
+  transmute(
+    season = key, 
+    vector_dataset = "Rooftops", 
+    area_m2 = sonnendach_area,
+    # efficiency 20% already accounted for
+    # assuming a GCR of 100%
+    yield_mean_kwh_m2 = value/area, 
+    yield_total_twh = value/1e9,
     )
+  
+
+yield <- mean_values |> 
+  extract(raster_dataset,c("optimized", "season"), c("_(annual|winter)_(summer|winter).tif$")) 
+
+write_csv(yield, "yield.csv")
+
+yield <- yield |> 
+  mutate(
+    area_m2 = pixelsize_x*pixelsize_y*rastersize_x*rastersize_y*perc_valid/100,
+    yield_mean_kwh_m2 = mean_value / (pixelsize_x*pixelsize_y) * 100 * 0.5 * 0.2,
+    yield_total_twh = (yield_mean_kwh_m2 * area_m2)/1e9
+  ) |> 
+  select(-matches("size_"), -perc_valid, -mean_value)
+
+
+yield2 <- bind_rows(yield, sonnendach)
+
+
+dff <- yield2 |> 
+  mutate(subset = ifelse(is.na(subset),vector_dataset, subset)) |> 
+  ungroup() |> 
+  mutate(
+    vector_dataset = fct_reorder(vector_dataset,yield_total_twh, "sum"),
+    subset = fct_reorder(subset, yield_total_twh)
+  ) |> 
+  filter(optimized == "annual" | is.na(optimized), season == "winter")
+
+c(
+  "Regular Farmland" = "#3CB371",
+  "Summer Grazing Land" = "#90EE90",
+  "National Roads" = "#778899",
+  "Reservoirs" = "#4682B4",
+  "Natural" = "#87CEEB",
+  "Rooftops" = "#BC8F8F"
+) -> cols
+
+dff |> 
+  mutate(yield_total_pwh = yield_total_twh/1000) |> 
+  ggplot(aes(yield_total_pwh,vector_dataset, fill = subset)) +
+  geom_col() +
+  theme_light() +
+  scale_fill_manual(values = cols) +
+  # geom_vline(xintercept = seq(0,800000, 50000)[-1], colour = "white",lwd = 2) +
+  scale_x_continuous("Potential Yield (in PWh)", labels = scales::label_number(big.mark = "'")) +
+  theme(legend.position = "none", axis.title.y = element_blank())
+
+
+
+
 ```
-
-
-## Agricultural
-
-The agricultural areas of Switzerland are stored in two vector datasets. Currently, there the data of two cantons are missing, TI and AR (see [#8](https://github.com/sunwell-foss/sonnenland/issues/8)). To calculate the potential power production in these areas, the vector datasets were first rasterized with the same extent and cell size as the dataset *Summer Production* (see @tbl-datasets), with a fixed value of 1. Then, the two rasters were multiplied, thus generating a new raster with solar radiation values only in agricultural areas. The mean value of this new raster was multiplied by the summed area of all polygons. These steps was then repeated for just the subset *Regular Farmland* and *Summer Grazing Land*, respectively. 
-
-```{bash}
-#| file: data-processing.sh
-#| eval: false
-#| code-summary: Data processing
-```
-
-
-## Roads
-
-From the SwissTLM roads dataset, all roads belonging to FEDRO were buffered with a distance of 10m. The result was rasterized and the mean solar radiation of all cells was calculated. With this mean value and the surface area of the buffered roads, the solar potential was calculated. 
-
-The solar potential alongside roads is `r print_with_units(roads_potential)`. Taking efficiency and GWR into consideration, the corrected solar potential alongside roads is `r print_with_units(roads_potential_corrected)`.
-
-
-This passage presents an analysis of the solar energy potential in Switzerland during the summer season. The total radiation during this period across the entire country, which has an area of `r area_ch`, is estimated to be `r radiation_total_str` during the summer months. However, not all of this radiation can be harnessed by solar panels, as the type of panel used affects the amount of radiation that is captured. In this study, the fraction of radiation that falls onto a solar panel is assumed to be 0.5, or 50%, based on the global capture rate (GCR).
-
-Additionally, solar panels have an efficiency rate that determines how much of the captured radiation can be converted into usable energy. In this study, the efficiency rate is assumed to be 0.2, or 20%, meaning that only 20% of the solar radiation captured by the panel can be converted into electricity.
-
-Using these assumptions, the energy potential for a given area can be calculated using the following formula:
-
-$$E_{pot} = \text{Radiation} \times 0.5 \times 0.2$$
-
-Thus, for the entire country of Switzerland, the energy potential during the summer season is estimated to be `r radiation_ch_frac_str`.
-
-## Standing water
-
-
-The energy potential for standing water, which takes into account both the GCR and efficiency rate, is estimated to be `r stehende_gewaesser_summer_frac_str`. This potential represents approximately `r gewaesser_percent` of the overall solar potential in Switzerland.
-
-It is important to differentiate between two types of standing water: artificial bodies of water primarily utilized for power production and natural bodies of water. The former category has distinct characteristics that make it an attractive location for solar power generation.
-([be more specific here]{.todo})
-To categorize standing water, the dataset "Staumauer" (hearafter referred to as "dams") was used as a reference. All standing waters that intersect a dam are classified as artificial reservoirs. In contrast, all standing waters that do not intersect a dam are considered natural. 
-
-
 
