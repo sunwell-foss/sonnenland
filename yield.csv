@@ -1,21 +1,21 @@
-optimized,season,vector_dataset,subset,mean_value,perc_valid,pixelsize_x,pixelsize_y,rastersize_x,rastersize_y
-annual,summer,Agriculture,Regular Farmland,943469.74685542,7.062,25,25,19065,12911
-annual,winter,Agriculture,Regular Farmland,448272.65293408,7.062,25,25,19065,12911
-winter,summer,Agriculture,Regular Farmland,812245.67398352,7.062,25,25,19065,12911
-winter,winter,Agriculture,Regular Farmland,486530.85396692,7.062,25,25,19065,12911
-annual,summer,Agriculture,Summer Grazing Land,947456.33676887,3.289,25,25,19065,12911
-annual,winter,Agriculture,Summer Grazing Land,552721.6100281,3.289,25,25,19065,12911
-winter,summer,Agriculture,Summer Grazing Land,833185.76196728,3.289,25,25,19065,12911
-winter,winter,Agriculture,Summer Grazing Land,588643.82747942,3.289,25,25,19065,12911
-annual,summer,Roads,National Roads,941381.83450023,0.0423,25,25,19065,12911
-annual,winter,Roads,National Roads,426641.230375,0.0423,25,25,19065,12911
-winter,summer,Roads,National Roads,813395.15778052,0.0423,25,25,19065,12911
-winter,winter,Roads,National Roads,461533.28057889,0.0423,25,25,19065,12911
-annual,summer,Standing Water,Reservoirs,939644.3138198,0.05195,25,25,19065,12911
-annual,winter,Standing Water,Reservoirs,501528.43452101,0.05195,25,25,19065,12911
-winter,summer,Standing Water,Reservoirs,822530.44729763,0.05195,25,25,19065,12911
-winter,winter,Standing Water,Reservoirs,536687.31608048,0.05195,25,25,19065,12911
-annual,summer,Standing Water,Natural,938234.79736288,0.8756,25,25,19065,12911
-annual,winter,Standing Water,Natural,416264.01676862,0.8756,25,25,19065,12911
-winter,summer,Standing Water,Natural,797528.78000101,0.8756,25,25,19065,12911
-winter,winter,Standing Water,Natural,448803.60103439,0.8756,25,25,19065,12911
+raster_dataset,optimized,season,vector_dataset,subset,mean_value,perc_valid,pixelsize_x,pixelsize_y,rastersize_x,rastersize_y
+agriculture_regular_max_annual_summer.tif,annual,summer,Agriculture,Regular Farmland,943469.74685542,7.062,25,25,19065,12911
+agriculture_regular_max_annual_winter.tif,annual,winter,Agriculture,Regular Farmland,448272.65293408,7.062,25,25,19065,12911
+agriculture_regular_max_winter_summer.tif,winter,summer,Agriculture,Regular Farmland,812245.67398352,7.062,25,25,19065,12911
+agriculture_regular_max_winter_winter.tif,winter,winter,Agriculture,Regular Farmland,486530.85396692,7.062,25,25,19065,12911
+agriculture_grazing_max_annual_summer.tif,annual,summer,Agriculture,Summer Grazing Land,947456.33676887,3.289,25,25,19065,12911
+agriculture_grazing_max_annual_winter.tif,annual,winter,Agriculture,Summer Grazing Land,552721.6100281,3.289,25,25,19065,12911
+agriculture_grazing_max_winter_summer.tif,winter,summer,Agriculture,Summer Grazing Land,833185.76196728,3.289,25,25,19065,12911
+agriculture_grazing_max_winter_winter.tif,winter,winter,Agriculture,Summer Grazing Land,588643.82747942,3.289,25,25,19065,12911
+roads_bund_max_annual_summer.tif,annual,summer,Roads,National Roads,941381.83450023,0.0423,25,25,19065,12911
+roads_bund_max_annual_winter.tif,annual,winter,Roads,National Roads,426641.230375,0.0423,25,25,19065,12911
+roads_bund_max_winter_summer.tif,winter,summer,Roads,National Roads,813395.15778052,0.0423,25,25,19065,12911
+roads_bund_max_winter_winter.tif,winter,winter,Roads,National Roads,461533.28057889,0.0423,25,25,19065,12911
+waterbodies_reservoirs.tif_max_annual_summer.tif,annual,summer,Standing Water,Reservoirs,939644.3138198,0.05195,25,25,19065,12911
+waterbodies_reservoirs.tif_max_annual_winter.tif,annual,winter,Standing Water,Reservoirs,501528.43452101,0.05195,25,25,19065,12911
+waterbodies_reservoirs.tif_max_winter_summer.tif,winter,summer,Standing Water,Reservoirs,822530.44729763,0.05195,25,25,19065,12911
+waterbodies_reservoirs.tif_max_winter_winter.tif,winter,winter,Standing Water,Reservoirs,536687.31608048,0.05195,25,25,19065,12911
+waterbodies_natural_max_annual_summer.tif,annual,summer,Standing Water,Natural,938234.79736288,0.8756,25,25,19065,12911
+waterbodies_natural_max_annual_winter.tif,annual,winter,Standing Water,Natural,416264.01676862,0.8756,25,25,19065,12911
+waterbodies_natural_max_winter_summer.tif,winter,summer,Standing Water,Natural,797528.78000101,0.8756,25,25,19065,12911
+waterbodies_natural_max_winter_winter.tif,winter,winter,Standing Water,Natural,448803.60103439,0.8756,25,25,19065,12911
